@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, ModalController, LoadingController } from 'ionic-angular';
 import { LoginPage } from '../login/login';
-import { Storage } from '@ionic/storage';
 import { BaseUI } from '../../common/baseui';
 import { RestProvider } from '../../providers/rest/rest';
 import { UserPage } from '../user/user';
+import {Storage} from "@ionic/storage";
 /**
  * Generated class for the MorePage page.
  *
@@ -28,25 +28,27 @@ export class MorePage extends BaseUI {
               public modalCtrl: ModalController,
               public loadCtrl: LoadingController,
               public rest: RestProvider,
-              public storage: Storage) {
+              public storage:Storage) {
     super();
+    console.log(this.storage.get('token'));
   }
 
   showModal() {
     let modal = this.modalCtrl.create(LoginPage);
     //关闭后的回调
     modal.onDidDismiss(()=>{
-      this.loadUserPage();
+      // this.loadUserPage();
     });
     modal.present();
   }
 
   ionViewDidEnter() {
-    this.loadUserPage();
+    // this.loadUserPage();
   }
 
   loadUserPage() {
-    this.storage.get('UserId').then((val) => {
+    this.storage.get('token').then((val) => {
+
       if (val != null) {
         //加载用户数据
         var loading = super.showLoading(this.loadCtrl, "加载中...");

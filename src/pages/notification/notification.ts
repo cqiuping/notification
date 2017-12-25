@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import {Media, MediaObject} from "@ionic-native/media";
 import {BackgroundMode} from "@ionic-native/background-mode";
+import {RestProvider} from "../../providers/rest/rest";
 
 /**
  * Generated class for the NotificationPage page.
@@ -21,20 +22,23 @@ export class NotificationPage {
   constructor(public navCtrl: NavController,
               public navParams: NavParams,
               private media:Media,
-              private backgroundMode: BackgroundMode) {
+              private backgroundMode: BackgroundMode,
+              private rest: RestProvider) {
     backgroundMode.enable();
     backgroundMode.setDefaults(({
       title:'通知应用',
       text:'在后台运行'
     }));
+    this.rest.getAlaram()
+      .subscribe(
+        f =>{
+          console.log(f);
+        }
+      )
     // backgroundMode.on('active')
   }
 
 
-
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad NotificationPage');
-  }
 
   playMusic(){
     const file:MediaObject = this.media.create("/android_asset/www/assets/file/music.mp3");
@@ -42,5 +46,6 @@ export class NotificationPage {
     file.play();
 
   }
+
 
 }

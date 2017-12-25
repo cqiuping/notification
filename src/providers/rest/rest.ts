@@ -1,9 +1,13 @@
-import { Observable } from 'rxjs/Rx';
-import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import {Observable} from 'rxjs/Rx';
+import {Injectable} from '@angular/core';
+// import {Http, RequestOptions, RequestOptionsArgs, Response,Headers} from '@angular/http';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
+import {Storage} from "@ionic/storage";
 
+
+// import * as RSA from '../../assets/lib/RSA.js'
 /*
  Generated class for the RestProvider provider.
 
@@ -12,24 +16,26 @@ import 'rxjs/add/operator/catch';
  */
 @Injectable()
 export class RestProvider {
+  token:string;
 
-  constructor(public http: Http) {
+  constructor(public http: HttpClient,private storage:Storage) {
+    this.storage.get('token').then((val) =>{
+      this.token = val;
+    })
     //console.log('Hello RestProvider Provider');
   }
+
+  private baseUrl = "http://172.16.22.176:7083/api/ams/mobile";
 
   //feed
   private apiUrlFeeds = 'https://imoocqa.gugujiankong.com/api/feeds/get';
 
   //account
-  private apiUrlRegister = 'https://imoocqa.gugujiankong.com/api/account/register';
-  private apiUrlLogin = 'https://imoocqa.gugujiankong.com/api/account/login';
+  private apiUrlRegister = 'http://172.16.22.176:9000/register';
   private apiUrlUserInfo = 'https://imoocqa.gugujiankong.com/api/account/userinfo';
   private apiUrlUpdateNickName = 'https://imoocqa.gugujiankong.com/api/account/updatenickname';
-  //question
-  private apiUrlQuestionSave = 'https://imoocqa.gugujiankong.com/api/question/save';
-  private apiUrlQuestionList = 'https://imoocqa.gugujiankong.com/api/question/list?index=1&number=10';
-  private apiUrlGetQuestion = "https://imoocqa.gugujiankong.com/api/question/get";
-  private apiUrlAnswer = "https://imoocqa.gugujiankong.com/api/question/answer";
+  //
+
 
   //* 注意：因为课程是主要讲解 ionic 的技术点
   //* 安全性方面你需要自己去做详细的设计和处理
@@ -44,17 +50,69 @@ export class RestProvider {
    * @returns {Observable<string[]>}
    * @memberof RestProvider
    */
-  login(mobile, password): Observable<string[]> {
-    return this.getUrlReturn(this.apiUrlLogin + "?mobile=" + mobile + "&password=" + password);
+  login(username, password){
+    let param = {username, password};
+    return this.http.post(this.baseUrl + "/login",param);
+    // return this.postUrlReturn(this.baseUrl + "/login", param,null,false);
   }
 
+  initEnc(): Observable<string[]> {
+    return this.http.get(this.baseUrl + "/rsa")
+  }
+
+  getAlaram(): Observable<string[]> {
+    return this.http.get(this.baseUrl + "/alarm");
+  }
+
+//   test() {
+//     let headers = new Headers();
+//     let username = "zmloper01@163.com";
+//     let password = "123456";
+//     headers.append('Content-Type', 'application/json');
+//     // headers.append('Content-Type', 'application/x-www-form-urlencoded');
+//     let id = 1;
+//     // this.key = new RSAKeyPair(this.exponent,"",this.modulus);
+//     // console.log(new RSAKeyPair("ABC12345", "", "987654FE"));
+//     username = encryptedString(this.key,username);
+//     password = encryptedString(this.key,password);
+//     // console.log(enc.decode(username));
+//     let param = {username,password};
+//     // this.http.post('http://172.16.22.176:7083/api/ams/monitor/mobile/login',body,{headers:headers})
+//     // this.http.get('http://172.16.22.176:7083/api/ams/monitor/ping')
+//     // this.http.post('http://172.16.22.176:7083/api/ams/mobile/login',"",{headers:headers,params:{username:username,password:password}})
+//     this.http.post('http://172.16.22.176:7083/api/ams/mobile/login',param)
+// .subscribe(
+//       res => {
+//         console.log(res);
+//       }
+//     )
+//   }
+//   test3() {
+//     this.http.post('http://172.16.22.176:8089/net/account/index?action=getParam', "", {params: {id: 1}})
+//     .subscribe(
+//       res => {
+//         // console.log(res);
+//         let data = res.json();
+//         console.log(res.json());
+//         // enc.init(data.data.exponent,data.data.modulus);
+//         // enc.init(data.data.exponent,data.data.modulus);
+//       }
+//     );
+//   }
+
+
   getUserInfo(userId): Observable<string[]> {
-    return this.getUrlReturn(this.apiUrlUserInfo + "?userid=" + userId);
+    return this.http.get(this.apiUrlUserInfo + "?userid=" + userId);
   }
 
   updateNickName(userId, nickname): Observable<string[]> {
-    return this.getUrlReturn(this.apiUrlUpdateNickName + "?userid=" + userId + "&nickname=" + nickname);
+    return this.http.get(this.apiUrlUpdateNickName + "?userid=" + userId + "&nickname=" + nickname);
   }
+
+
+  // test() {
+  //   return this.getUrlReturn(this.apiTestUrl);
+  // }
 
 
   /**
@@ -67,22 +125,71 @@ export class RestProvider {
    * @memberof RestProvider
    */
   register(mobile, nickname, password): Observable<string[]> {
-    return this.getUrlReturn(this.apiUrlRegister + "?mobile=" + mobile + "&nickname=" + nickname + "&password=" + password)
+    // let creds = {"mobile":mobile,"nickname":nickname,"password":password};
+    // let headers = new Headers();
+    // headers.append('Content-Type','application/json');
+    // return this.http.post(this.apiUrlRegister,creds,{
+    //   headers:headers
+    // }).map(data => this.extractData(data))
+    // .catch(err => this.handleError(err));
+    return this.http.get(this.apiUrlRegister + "?mobile=" + mobile + "&nickname=" + nickname + "&password=" + password)
   }
 
   /**
-   * 全局获取 HTTP 请求的方法
+   * 全局获取 HTTP  get请求的方法
    * @Parry
    * @private
    * @param {string} url
    * @returns {Observable<string[]>}
    * @memberof RestProvider
    */
-  private getUrlReturn(url: string): Observable<string[]> {
-    return this.http.get(url)
-      .map(this.extractData)
-      .catch(this.handleError);
-  }
+  // private getUrlReturn(url: string, options?: RequestOptionsArgs,needToken=true): Observable<string[]> {
+  //   if(needToken){
+  //     if(options){
+  //       // options.
+  //       if(options.headers){
+  //         options.headers.append('Authorization',this.token);
+  //       }else{
+  //         options.headers = new Headers();
+  //         options.headers.append('Authorization', this.token);
+  //
+  //       }
+  //     }else{
+  //
+  //       let headers = new Headers({'Authorization': 'Bearer ' + this.token})
+  //       options = new RequestOptions({headers: headers});
+  //     }
+  //   }
+  //   //http.get()返回的类型是Observable<Response>
+  //   let res: Observable<Response> = options == null ? this.http.get(url) : this.http.get(url, options);
+  //   return res.map(this.extractData).catch(this.handleError);
+  // }
+
+  /**
+   * 全局获取 HTTP  post请求的方法
+   * @param url
+   * @param body
+   * @param options
+   * @returns {Observable<R|T>}
+   */
+  // private postUrlReturn(url: string, body: any, options?: RequestOptionsArgs,needToken=true): Observable<string[]> {
+  //   if(needToken){
+  //     if(options){
+  //       // options.
+  //       if(options.headers){
+  //         options.headers.append('Authorization', this.token);
+  //       }else{
+  //         options.headers = new Headers({'Authorization': 'Bearer ' + this.token})
+  //       }
+  //     }else{
+  //
+  //       let headers = new Headers({'Authorization': 'Bearer ' + this.token})
+  //       options = new RequestOptions({headers: headers});
+  //     }
+  //   }
+  //   let res: Observable<Response> = options == null ? this.http.post(url, body) : this.http.post(url, body, options);
+  //   return res.map(this.extractData).catch(this.handleError);
+  // }
 
 
   /**
@@ -95,7 +202,7 @@ export class RestProvider {
    */
   private extractData(res: Response) {
     let body = res.json();
-    return JSON.parse(body) || {};
+    return (body instanceof Object) ? body : (JSON.parse(body) || {});
   }
 
 

@@ -12,15 +12,16 @@ import {ChatPage} from "../pages/chat/chat";
 import {NotificationPage} from "../pages/notification/notification";
 import {MorePage} from "../pages/more/more";
 import {RestProvider} from '../providers/rest/rest';
-import {HttpModule} from '@angular/http';
 import {LoginPage} from "../pages/login/login";
 import {RegisterPage} from "../pages/register/register";
 import {UserPage} from "../pages/user/user";
-import {IonicStorageModule} from "@ionic/storage";
 import {Media, MediaObject} from "@ionic-native/media";
 import {BackgroundMode} from "@ionic-native/background-mode";
 import {AppMinimize} from "@ionic-native/app-minimize";
 import {JPush} from "@jiguang-ionic/jpush";
+import {IonicStorageModule} from "@ionic/storage";
+import {HttpClientModule} from "@angular/common/http"
+declare var enc ;
 
 @NgModule({
   declarations: [
@@ -32,11 +33,12 @@ import {JPush} from "@jiguang-ionic/jpush";
     TabsPage,
     LoginPage,
     RegisterPage,
-    UserPage
+    UserPage,
+
   ],
   imports: [
     BrowserModule,
-    HttpModule,
+    HttpClientModule,
     IonicModule.forRoot(MyApp),
     IonicStorageModule.forRoot()
   ],
@@ -64,10 +66,12 @@ import {JPush} from "@jiguang-ionic/jpush";
   ]
 })
 export class AppModule {
+
   constructor(private media: Media,
               private backgroundMode: BackgroundMode,
               public platform: Platform,
-              private appMinimize: AppMinimize,) {
+              private appMinimize: AppMinimize,
+              private rest:RestProvider) {
     backgroundMode.enable();
     backgroundMode.setDefaults(({
       title: '通知应用',
@@ -78,22 +82,29 @@ export class AppModule {
       this.appMinimize.minimize();
     }, 100);
 
-    window['plugins'].jPushPlugin.init();
-    this.jPushAddEventListener();
-    this.backgroundMode.on('activate').subscribe(
-      () => {
-        this.jPushAddEventListener();
-      }
-    )
+
+    // window['plugins'].jPushPlugin.init();
+    // this.jPushAddEventListener();
+    // this.backgroundMode.on('activate').subscribe(
+    //   () => {
+    //     // this.jPushAddEventListener();
+    //     this.rest.getAlaram()
+    //       .subscribe(
+    //         f=>{
+    //           console.log(f);
+    //         }
+    //       )
+    //   }
+    // )
   }
 
-
-  private jPushAddEventListener() {
-    document.addEventListener("jpush.receiveNotification", event => {
-      const file: MediaObject = this.media.create("/android_asset/www/assets/file/music.mp3");
-      // file.onError.subscribe(error => this.info = error);
-      file.play();
-    }, false);
-  }
+//先屏蔽，到时候看要不要推送
+  // private jPushAddEventListener() {
+  //   document.addEventListener("jpush.receiveNotification", event => {
+  //     const file: MediaObject = this.media.create("/android_asset/www/assets/file/music.mp3");
+  //     // file.onError.subscribe(error => this.info = error);
+  //     file.play();
+  //   }, false);
+  // }
 
 }
