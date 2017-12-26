@@ -42,7 +42,7 @@ export class LoginPage extends BaseUI {
               public rest: RestProvider,
               public toastCtrl: ToastController,
               public storage: Storage,
-              private app: App) {
+              public app: App) {
     super(); //调用父类的构造函数 constructor
     this.rest.initEnc()
     .subscribe(
@@ -63,15 +63,14 @@ export class LoginPage extends BaseUI {
         if (res["errorCode"] != null) {
           super.showToast(this.toastCtrl, res["errorMsg"]);
         } else {
+          this.storage.set("token", res["responseParams"]);
           this.app.getRootNav().setRoot(TabsPage);
-          this.storage.set("token", JSON.stringify(res["responseParams"]));
         }
         loading.dismiss();
       },
       (err: HttpErrorResponse) => {
-        if (err.error instanceof Error) {
-          super.showToast(this.toastCtrl, err.error);
-        }
+        super.showToast(this.toastCtrl, err.error);
+        loading.dismiss();
       }
     );
     // .subscribe(

@@ -1,6 +1,6 @@
 import {NgModule, ErrorHandler} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
-import {IonicApp, IonicModule, IonicErrorHandler, Platform} from 'ionic-angular';
+import {IonicApp, IonicModule, IonicErrorHandler, Platform, ToastController} from 'ionic-angular';
 import {MyApp} from './app.component';
 
 import {HomePage} from '../pages/home/home';
@@ -20,8 +20,12 @@ import {BackgroundMode} from "@ionic-native/background-mode";
 import {AppMinimize} from "@ionic-native/app-minimize";
 import {JPush} from "@jiguang-ionic/jpush";
 import {IonicStorageModule} from "@ionic/storage";
-import {HttpClientModule} from "@angular/common/http"
-declare var enc ;
+import {HTTP_INTERCEPTORS, HttpClientModule, HttpErrorResponse} from "@angular/common/http"
+import {AuthInterceptorProvider} from '../providers/auth-interceptor/auth-interceptor';
+import {Observable} from "rxjs/Observable";
+import {BaseUI} from "../common/baseui";
+import {NativeAudio} from "@ionic-native/native-audio";
+declare var enc;
 
 @NgModule({
   declarations: [
@@ -60,51 +64,64 @@ declare var enc ;
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     RestProvider,
     Media,
+    NativeAudio,
     BackgroundMode,
     AppMinimize,
-    JPush
+    JPush,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorProvider,
+      multi: true
+    }
   ]
 })
-export class AppModule {
+export class AppModule extends BaseUI {
+
+  timer: any;
 
   constructor(private media: Media,
               private backgroundMode: BackgroundMode,
               public platform: Platform,
               private appMinimize: AppMinimize,
-              private rest:RestProvider) {
+              private rest: RestProvider,
+              private toastCtrl: ToastController,
+              private nativeAudio: NativeAudio) {
+    super();
     backgroundMode.enable();
     backgroundMode.setDefaults(({
       title: '通知应用',
       text: '在后台运行'
     }));
 
+    // this.platform
+
     this.platform.registerBackButtonAction(() => {
       this.appMinimize.minimize();
     }, 100);
 
 
-    // window['plugins'].jPushPlugin.init();
-    // this.jPushAddEventListener();
-    // this.backgroundMode.on('activate').subscribe(
-    //   () => {
-    //     // this.jPushAddEventListener();
-    //     this.rest.getAlaram()
-    //       .subscribe(
-    //         f=>{
-    //           console.log(f);
-    //         }
-    //       )
-    //   }
-    // )
+    window['plugins'].jPushPlugin.init();
+    this.jPushAddEventListener();
+    this.backgroundMode.on('activate').subscribe(
+      () => {
+        this.jPushAddEventListener();
+      }
+    )
   }
 
 //先屏蔽，到时候看要不要推送
-  // private jPushAddEventListener() {
-  //   document.addEventListener("jpush.receiveNotification", event => {
-  //     const file: MediaObject = this.media.create("/android_asset/www/assets/file/music.mp3");
-  //     // file.onError.subscribe(error => this.info = error);
-  //     file.play();
-  //   }, false);
-  // }
+  private jPushAddEventListener() {
+
+    document.addEventListener("jpush.receiveNotification", event => {
+      const file: MediaObject = this.media.create("/android_asset/www/assets/file/music.mp3");
+      file.play();
+    file.onStatusUpdate.subscribe(status=>{
+      if(status == 4){
+        file.seekTo(0);
+        file.play();
+      }
+    });
+    }, false);
+  }
 
 }

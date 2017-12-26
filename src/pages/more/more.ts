@@ -51,17 +51,17 @@ export class MorePage extends BaseUI {
 
       if (val != null) {
         //加载用户数据
-        var loading = super.showLoading(this.loadCtrl, "加载中...");
-        this.rest.getUserInfo(val)
-          .subscribe(
-            userinfo => {
-              this.userinfo = userinfo;
-              this.headface = userinfo["UserHeadface"] + "?" + (new Date()).valueOf();
-              this.notLogin = false;
-              this.logined = true;
-              loading.dismiss();
-            }
-          );
+        // var loading = super.showLoading(this.loadCtrl, "加载中...");
+        // this.rest.getUserInfo(val)
+        //   .subscribe(
+        //     userinfo => {
+        //       this.userinfo = userinfo;
+        //       this.headface = userinfo["UserHeadface"] + "?" + (new Date()).valueOf();
+        //       this.notLogin = false;
+        //       this.logined = true;
+        //       loading.dismiss();
+        //     }
+        //   );
       }
       else {
         this.notLogin = true;

@@ -50,20 +50,20 @@ export class RegisterPage extends BaseUI {
     }
     else {
       var loading = super.showLoading(this.loadingCtrl, "注册中...");
-      this.rest.register(this.mobile,this.nickname,this.password)
-        .subscribe(
-          f=>{
-            if(f["Status"]=="OK"){
-              loading.dismiss();
-              super.showToast(this.toastCtrl,"注册成功。");
-              this.dismiss();
-            }
-            else{
-              loading.dismiss();
-              super.showToast(this.toastCtrl,f["StatusContent"]);
-            }
-          },
-          error => this.errorMessage = <any>error);
+    //   this.rest.register(this.mobile,this.nickname,this.password)
+    //     .subscribe(
+    //       f=>{
+    //         if(f["Status"]=="OK"){
+    //           loading.dismiss();
+    //           super.showToast(this.toastCtrl,"注册成功。");
+    //           this.dismiss();
+    //         }
+    //         else{
+    //           loading.dismiss();
+    //           super.showToast(this.toastCtrl,f["StatusContent"]);
+    //         }
+    //       },
+    //       error => this.errorMessage = <any>error);
     }
   }
 }

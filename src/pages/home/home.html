@@ -1,17 +1,39 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Home</ion-title>
+    <ion-title>Top5 Alarm</ion-title>
+    <!--<button ion-button (click)="dismiss()" end>-->
+      <!--<span ion-text color="primary" showWhen="ios">未认领 <span class="badge" ng-bind="alarmDatas.unhandle"></span></span>-->
+      <!--<ion-icon name="md-close" showWhen="android"></ion-icon>-->
+    <!--</button>-->
+    <ion-buttons color="primary"end>
+      <a class="btn btn-sm btn-default pull-right" type="button">
+        未认领 <span class="badge">{{unhandle}}</span>
+      </a>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
-<ion-content padding>
-  <h2>Welcome to Ionic!</h2>
-  <p>
-    This starter project comes with simple tabs-based layout for apps
-    that are going to primarily use a Tabbed UI.
-  </p>
-  <p>
-    Take a look at the <code>src/pages/</code> directory to add or change tabs,
-    update any existing page or create new pages.
-  </p>
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let alarm of topAlarms" class="item">
+      <ion-avatar item-left>
+        <span class="label label-danger" *ngIf="alarm.alertLevel==1">严重</span>
+        <span class="label label-warning" *ngIf="alarm.alertLevel==2">警告</span>
+        <span class="label label-info" *ngIf="alarm.alertLevel==3">通知</span>
+      </ion-avatar>
+      <p>时间:{{alarm.createTime | date : 'yyyy-MM-dd HH:mm:ss'}}</p>
+      <p style="margin-left: 0px">{{alarm.title}}></p>
+    </ion-item>
+
+    <!--<ion-item-sliding *ngFor="let alarm of topAlarms">-->
+      <!--<ion-item>-->
+        <!--<ion-avatar item-start>-->
+          <!--<span class="label label-danger" *ngIf="alarm.alertLevel==1">严重</span>-->
+          <!--<span class="label label-warning" *ngIf="alarm.alertLevel==2">警告</span>-->
+          <!--<span class="label label-info" *ngIf="alarm.alertLevel==3">通知</span>-->
+        <!--</ion-avatar>-->
+        <!--<p style="margin-left: 10px">{{alarm.title}}</p>-->
+      <!--</ion-item>-->
+    <!--</ion-item-sliding>-->
+  </ion-list>
 </ion-content>
