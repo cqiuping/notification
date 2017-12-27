@@ -61,6 +61,10 @@ export class RestProvider {
     return this.http.get(this.baseUrl + "/alarm");
   }
 
+  blank(){
+    return this.http.get(this.baseUrl + "/blank");
+  }
+
   /**
    * 注册请求
    *

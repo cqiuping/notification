@@ -25,6 +25,7 @@ import {AuthInterceptorProvider} from '../providers/auth-interceptor/auth-interc
 import {Observable} from "rxjs/Observable";
 import {BaseUI} from "../common/baseui";
 import {NativeAudio} from "@ionic-native/native-audio";
+import { RespInterceptorProvider } from '../providers/resp-interceptor/resp-interceptor';
 declare var enc;
 
 @NgModule({
@@ -72,20 +73,23 @@ declare var enc;
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptorProvider,
       multi: true
-    }
+    },
+    // {
+    //   provide: HTTP_INTERCEPTORS,
+    //   useClass: RespInterceptorProvider,
+    //   multi: true
+    // },
+    RespInterceptorProvider
   ]
 })
 export class AppModule extends BaseUI {
 
   timer: any;
 
-  constructor(private media: Media,
+  constructor(
               private backgroundMode: BackgroundMode,
               public platform: Platform,
-              private appMinimize: AppMinimize,
-              private rest: RestProvider,
-              private toastCtrl: ToastController,
-              private nativeAudio: NativeAudio) {
+              private appMinimize: AppMinimize) {
     super();
     backgroundMode.enable();
     backgroundMode.setDefaults(({
@@ -93,35 +97,8 @@ export class AppModule extends BaseUI {
       text: '在后台运行'
     }));
 
-    // this.platform
-
     this.platform.registerBackButtonAction(() => {
       this.appMinimize.minimize();
     }, 100);
-
-
-    window['plugins'].jPushPlugin.init();
-    this.jPushAddEventListener();
-    this.backgroundMode.on('activate').subscribe(
-      () => {
-        this.jPushAddEventListener();
-      }
-    )
   }
-
-//先屏蔽，到时候看要不要推送
-  private jPushAddEventListener() {
-
-    document.addEventListener("jpush.receiveNotification", event => {
-      const file: MediaObject = this.media.create("/android_asset/www/assets/file/music.mp3");
-      file.play();
-    file.onStatusUpdate.subscribe(status=>{
-      if(status == 4){
-        file.seekTo(0);
-        file.play();
-      }
-    });
-    }, false);
-  }
-
 }

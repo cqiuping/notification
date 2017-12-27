@@ -24,9 +24,12 @@ export class HomePage extends BaseUI {
     super();
   }
 
+  //页面进入之后执行，并且每次进入都会执行
   ionViewDidEnter() {
     // this.getAlarmInfo();
     this.poll();
+    this.rest.getAlaram()
+      .subscribe(f=>{});
     this.backgroundMode.on('activate').subscribe(
       () => {
         this.poll();
@@ -34,10 +37,10 @@ export class HomePage extends BaseUI {
     )
   }
 
+  //页面加载完毕执行，并且只执行一次
   ionViewDidLoad() {
     this.file = this.media.create("/android_asset/www/assets/file/music.mp3");
     // this.file.play();
-
   }
 
   private poll() {
@@ -82,6 +85,4 @@ export class HomePage extends BaseUI {
       }
     }
   }
-
-
 }

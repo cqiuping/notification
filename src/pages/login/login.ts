@@ -62,11 +62,13 @@ export class LoginPage extends BaseUI {
       (res) => {
         if (res["errorCode"] != null) {
           super.showToast(this.toastCtrl, res["errorMsg"]);
+          loading.dismiss();
         } else {
-          this.storage.set("token", res["responseParams"]);
+          this.storage.set("token", res["responseParams"]["token"]);
+          this.storage.set("userId", res["responseParams"]["userId"]);
           this.app.getRootNav().setRoot(TabsPage);
+          loading.dismiss();
         }
-        loading.dismiss();
       },
       (err: HttpErrorResponse) => {
         super.showToast(this.toastCtrl, err.error);
