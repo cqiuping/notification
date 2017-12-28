@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {NavController, ToastController} from 'ionic-angular';
+import {AlertController, NavController, ToastController} from 'ionic-angular';
 import {BackgroundMode} from "@ionic-native/background-mode";
 import {MediaObject, Media} from "@ionic-native/media";
 import {RestProvider} from "../../providers/rest/rest";
@@ -20,16 +20,15 @@ export class HomePage extends BaseUI {
   constructor(public navCtrl: NavController,
               private rest: RestProvider,
               private media: Media,
+              private alertCtrl: AlertController,
               private backgroundMode: BackgroundMode) {
     super();
   }
 
   //页面进入之后执行，并且每次进入都会执行
   ionViewDidEnter() {
-    // this.getAlarmInfo();
+    this.getAlarm();
     this.poll();
-    this.rest.getAlaram()
-      .subscribe(f=>{});
     this.backgroundMode.on('activate').subscribe(
       () => {
         this.poll();
@@ -43,14 +42,72 @@ export class HomePage extends BaseUI {
     // this.file.play();
   }
 
+  recv(id) {
+    let ids = [];
+    if (id == null) {
+
+    } else {
+      ids.push(id);
+    }
+    this.rest.recv(ids)
+      .subscribe(
+        res => {
+          console.log(res);
+        }
+      );
+
+  }
+
+  presentConfirm(id) {
+    let alert = this.alertCtrl.create({
+      message: '确认要认领吗？',
+      buttons: [
+        {
+          text: '取消',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: '认领',
+          handler: () => {
+            this.recv(id);
+            this.getAlarm();
+            console.log('recv');
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
+
+  doRefresh(refresher){
+    console.log('Begin async operation', refresher);
+
+    setTimeout(() => {
+      console.log('Async operation has ended');
+      this.getAlarm();
+      refresher.complete();
+    }, 2000);
+  }
+
+  private getAlarm(){
+    this.rest.getAlaram()
+    .subscribe(f => {
+      this.topAlarms = f["responseParams"]["topAlarms"];
+      this.unhandle = f["responseParams"]["unhandle"];
+      this.check(this.topAlarms, this.file);
+    });
+  }
+
   private poll() {
     setInterval(
       () => {
         this.rest.getAlaram()
         .subscribe(f => {
-          this.topAlarms = f["responseParams"]["topAlarms"];
-          this.unhandle = f["responseParams"]["unhandle"];
-          this.check(this.topAlarms, this.file);
+         let topAlarms = f["responseParams"]["topAlarms"];
+          this.check(topAlarms, this.file);
         })
       }, 5000
     )

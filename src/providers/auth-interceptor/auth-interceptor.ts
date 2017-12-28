@@ -5,7 +5,6 @@ import {
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromPromise';
-import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/mergeMap';
 import {Storage} from "@ionic/storage";
 
@@ -17,7 +16,6 @@ import {Storage} from "@ionic/storage";
  */
 @Injectable()
 export class AuthInterceptorProvider implements HttpInterceptor {
-  token: any;
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     console.log(req.url);
@@ -33,7 +31,6 @@ export class AuthInterceptorProvider implements HttpInterceptor {
   }
 
   constructor(private storage: Storage) {
-    this.getToken();
   }
 
   private getToken(): Observable<Headers> {

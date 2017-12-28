@@ -61,10 +61,10 @@ export class RestProvider {
     return this.http.get(this.baseUrl + "/alarm");
   }
 
-  blank(){
-    return this.http.get(this.baseUrl + "/blank");
+  recv(ids:number[]){
+    console.log("recv faulter");
+    return this.http.post(this.baseUrl+"/recv",ids);
   }
-
   /**
    * 注册请求
    *
