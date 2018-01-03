@@ -43,9 +43,10 @@ export class NotificationPage {
     // }, function(msg){
     //   alert( 'error: ' + msg );
     // });
-    const file:MediaObject = this.media.create("/android_asset/www/assets/file/alarm.wav");
-    file.onError.subscribe(error => alert(error));
+    const file:MediaObject = this.media.create("/android_asset/www/assets/file/music.mp3");
     file.play();
+    file.onSuccess.subscribe(() => alert('Action is successful'));
+    file.onError.subscribe(error => alert(error));
     // file.status.subscribe((status) => {
     //   if(status === Media.MEDIA_STOPPED) media.play();
     // });

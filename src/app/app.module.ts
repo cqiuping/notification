@@ -74,11 +74,11 @@ declare var enc;
       useClass: AuthInterceptorProvider,
       multi: true
     },
-    // {
-    //   provide: HTTP_INTERCEPTORS,
-    //   useClass: RespInterceptorProvider,
-    //   multi: true
-    // },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: RespInterceptorProvider,
+      multi: true
+    },
     RespInterceptorProvider
   ]
 })

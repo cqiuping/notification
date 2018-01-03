@@ -2,11 +2,12 @@ import {
   HttpClient, HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor,
   HttpRequest, HttpResponse
 } from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import {Injectable, Injector} from '@angular/core';
 import {Observable} from "rxjs/Observable";
 import 'rxjs/add/operator/do';
-import {LoginPage} from "../../pages/login/login";
-import {NavController} from "ionic-angular";
+import 'rxjs/add/operator/mergeMap'
+import {RestProvider} from "../rest/rest";
+import {Storage} from "@ionic/storage";
 
 /*
  Generated class for the RespInterceptorProvider provider.
@@ -16,28 +17,37 @@ import {NavController} from "ionic-angular";
  */
 @Injectable()
 export class RespInterceptorProvider implements HttpInterceptor {
+
+  rest:any;
+
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(req).do((event) => {
-      console.log(event);
-      if (event instanceof HttpResponse) {
-        console.log("httpresponse");
-        // do stuff with response if you want
-        console.log("event");
-      }
-    }, (err:any) => {
-      console.log(err);
-      // if (err instanceof HttpErrorResponse) {
-      //   console.log(err);
-      // }
-      //   if (err.status === 401) {
-      //     console.log("401 error");
-      //     // this.navCtrl.push(LoginPage);
-      //   // }
-      // }
+    this.rest = this.inj.get(RestProvider);
+    return next.handle(req).catch(err =>{
+      console.log("resp error:" + err.message);
+      return  this.refreshToken()
+      .flatMap(
+        res =>{
+          this.storage.remove('token');
+          this.storage.set('token',res["responseParams"]);
+          const authReq = req.clone({headers: req.headers.set('token','' + res["responseParams"])});
+          console.log("response url:" + req.url);
+          return next.handle(authReq);
+        }
+      )
     });
   }
 
-  constructor() {
+  constructor(private inj:Injector,private storage:Storage) {
+  }
+
+  refreshToken(){
+    return new Observable(observer => {
+      this.rest.getTokenFromServer()
+          .subscribe((res) => {
+            observer.next(JSON.parse(JSON.stringify(res)));
+            observer.complete();
+          })
+    })
   }
 
 }

@@ -1,11 +1,12 @@
-import {Observable} from 'rxjs/Rx';
 import {Injectable} from '@angular/core';
-// import {Http, RequestOptions, RequestOptionsArgs, Response,Headers} from '@angular/http';
-import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import {Storage} from "@ionic/storage";
-
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/fromPromise';
+import 'rxjs/add/operator/mergeMap';
+declare var encryptedString;
 
 // import * as RSA from '../../assets/lib/RSA.js'
 /*
@@ -17,8 +18,7 @@ import {Storage} from "@ionic/storage";
 @Injectable()
 export class RestProvider {
 
-  constructor(public http: HttpClient,private storage:Storage) {
-    //console.log('Hello RestProvider Provider');
+  constructor(public http: HttpClient, private storage: Storage) {
   }
 
   // private baseUrl = "http://172.16.22.176:7083/api/ams/mobile";
@@ -47,24 +47,68 @@ export class RestProvider {
    * @returns {Observable<string[]>}
    * @memberof RestProvider
    */
-  login(username, password){
-    let param = {username, password};
-    return this.http.post(this.baseUrl + "/login",param);
+  login(username, password, key) {
+    return Observable.fromPromise(this.storage.get("accountMap"))
+    .flatMap(val => {
+      console.log(val);
+      if (val != null && val.appid != null && val.signkey != null) {
+        console.log(key);
+        let newAppid = encryptedString(key, val.appid);
+        console.log(newAppid);
+        let newSingkey = encryptedString(key, val.signkey);
+        username = encryptedString(key, username);
+        password = encryptedString(key, password);
+        console.log(password);
+        let headers = new HttpHeaders({"appid": newAppid, "signkey": newSingkey});
+        console.log(headers.get("appid"));
+        // headers.append("appid", newAppid);
+        // headers.append("signkey", newSingkey);
+        let param = {username, password};
+        let newAccountMap = {appid: newAppid, signkey: newSingkey};
+        this.storage.set("newAccountMap", newAccountMap);
+        return this.http.post(this.baseUrl + "/login", param, {headers: headers});
+      }
+    });
     // return this.postUrlReturn(this.baseUrl + "/login", param,null,false);
   }
 
-  initEnc() {
-    return this.http.get(this.baseUrl + "/rsa")
+  /**
+   * 获取token
+   * @returns {Observable<R>}
+   */
+  getTokenFromServer() {
+    return Observable.fromPromise(this.storage.get("newAccountMap"))
+    .flatMap((map) => {
+      console.log("get token:" + map);
+      if (map != null && map.appid != null && map.signkey != null) {
+        let headers = new HttpHeaders({"appid": map.appid, "signkey": map.signkey});
+        console.log(headers.get("appid"));
+        return this.http.get(this.baseUrl + "/token", {headers: headers});
+      }
+    });
   }
 
-  getAlaram(){
+  initEnc() {
+    return this.http.get(this.baseUrl + "/ping")
+  }
+
+
+  getAlaram() {
     return this.http.get(this.baseUrl + "/alarm");
   }
 
-  recv(ids:number[]){
+  recv(ids: number[]) {
     console.log("recv faulter");
-    return this.http.post(this.baseUrl+"/recv",ids);
+   return Observable.fromPromise(this.storage.get("userId"))
+            .flatMap((userId) => {
+              if(userId != null){
+                return this.http.post(this.baseUrl + "/recv", {ids,userId});
+              }else{
+                console.log("找不到userId");
+              }
+            })
   }
+
   /**
    * 注册请求
    *

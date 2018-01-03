@@ -15,8 +15,8 @@ import {TabsPage} from "../tabs/tabs";
 import {Storage} from "@ionic/storage";
 import {HttpErrorResponse} from "@angular/common/http";
 declare var RSAKeyPair;
-declare var encryptedString;
 declare var setMaxDigits;
+declare var encryptedString;
 /**
  * Generated class for the LoginPage page.
  *
@@ -47,6 +47,7 @@ export class LoginPage extends BaseUI {
     this.rest.initEnc()
     .subscribe(
       res => {
+        console.log(res["responseParams"]["modulus"].length / 2 + 3);
         setMaxDigits(res["responseParams"]["modulus"].length / 2 + 3);
         this.key = new RSAKeyPair(res["responseParams"]["exponent"], "", res["responseParams"]["modulus"]);
       }
@@ -54,10 +55,9 @@ export class LoginPage extends BaseUI {
   }
 
   login() {
-    let newusername = encryptedString(this.key, this.username);
-    let newpassword = encryptedString(this.key, this.password);
     var loading = super.showLoading(this.loadingCtrl, "登录中...");
-    this.rest.login(newusername, newpassword)
+
+    this.rest.login(this.username, this.password, this.key)
     .subscribe(
       (res) => {
         if (res["errorCode"] != null) {
@@ -67,6 +67,7 @@ export class LoginPage extends BaseUI {
           this.storage.set("token", res["responseParams"]["token"]);
           this.storage.set("userId", res["responseParams"]["userId"]);
           this.app.getRootNav().setRoot(TabsPage);
+          this.storage.set("key", this.key);
           loading.dismiss();
         }
       },
