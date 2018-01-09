@@ -19,7 +19,7 @@ import {Media, MediaObject} from "@ionic-native/media";
 import {BackgroundMode} from "@ionic-native/background-mode";
 import {AppMinimize} from "@ionic-native/app-minimize";
 import {JPush} from "@jiguang-ionic/jpush";
-import {IonicStorageModule} from "@ionic/storage";
+import {IonicStorageModule, Storage} from "@ionic/storage";
 import {HTTP_INTERCEPTORS, HttpClientModule, HttpErrorResponse} from "@angular/common/http"
 import {AuthInterceptorProvider} from '../providers/auth-interceptor/auth-interceptor';
 import {Observable} from "rxjs/Observable";
@@ -27,6 +27,7 @@ import {BaseUI} from "../common/baseui";
 import {NativeAudio} from "@ionic-native/native-audio";
 import { RespInterceptorProvider } from '../providers/resp-interceptor/resp-interceptor';
 declare var enc;
+// import { LocalNotifications } from "@ionic-native/local-notifications";
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ declare var enc;
   providers: [
     StatusBar,
     SplashScreen,
+    // LocalNotifications,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     RestProvider,
     Media,
@@ -87,9 +89,11 @@ export class AppModule extends BaseUI {
   timer: any;
 
   constructor(
-              private backgroundMode: BackgroundMode,
-              public platform: Platform,
-              private appMinimize: AppMinimize) {
+    private backgroundMode: BackgroundMode,
+    public platform: Platform,
+    private storage:Storage,
+    private media:Media,
+    private appMinimize: AppMinimize) {
     super();
     backgroundMode.enable();
     backgroundMode.setDefaults(({

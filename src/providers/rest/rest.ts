@@ -22,7 +22,8 @@ export class RestProvider {
   }
 
   // private baseUrl = "http://172.16.22.176:7083/api/ams/mobile";
-  private baseUrl = "http://192.168.137.1:7083/api/ams/mobile";
+  // private baseUrl = "http://192.168.137.1:7083/api/ams/mobile";
+  private baseUrl = "http://172.16.0.44:7000/api/ams/mobile";
 
   //feed
   private apiUrlFeeds = 'https://imoocqa.gugujiankong.com/api/feeds/get';
@@ -99,14 +100,14 @@ export class RestProvider {
 
   recv(ids: number[]) {
     console.log("recv faulter");
-   return Observable.fromPromise(this.storage.get("userId"))
-            .flatMap((userId) => {
-              if(userId != null){
-                return this.http.post(this.baseUrl + "/recv", {ids,userId});
-              }else{
-                console.log("找不到userId");
-              }
-            })
+    return Observable.fromPromise(this.storage.get("userId"))
+    .flatMap((userId) => {
+      if(userId != null){
+        return this.http.post(this.baseUrl + "/recv", {ids,userId});
+      }else{
+        console.log("找不到userId");
+      }
+    })
   }
 
   /**

@@ -24,7 +24,7 @@ export class AuthInterceptorProvider implements HttpInterceptor {
     } else {
       return this.getToken().flatMap(data => {
         console.log("auth token: " + JSON.stringify(data));
-        const authReq = req.clone({headers: req.headers.set('token','' + data)});
+        const authReq = req.clone({headers: req.headers.set('token', data+'')});
         return next.handle(authReq);
       })
     }
