@@ -26,6 +26,8 @@ import {Observable} from "rxjs/Observable";
 import {BaseUI} from "../common/baseui";
 import {NativeAudio} from "@ionic-native/native-audio";
 import { RespInterceptorProvider } from '../providers/resp-interceptor/resp-interceptor';
+import {FaultPage} from "../pages/fault/fault";
+import {MenuPage} from "../pages/menu/menu";
 declare var enc;
 // import { LocalNotifications } from "@ionic-native/local-notifications";
 
@@ -40,6 +42,8 @@ declare var enc;
     LoginPage,
     RegisterPage,
     UserPage,
+    FaultPage,
+    MenuPage
 
   ],
   imports: [
@@ -58,7 +62,9 @@ declare var enc;
     TabsPage,
     LoginPage,
     RegisterPage,
-    UserPage
+    UserPage,
+    FaultPage,
+    MenuPage
   ],
   providers: [
     StatusBar,

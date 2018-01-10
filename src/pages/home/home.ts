@@ -4,6 +4,7 @@ import {BackgroundMode} from "@ionic-native/background-mode";
 import {MediaObject, Media} from "@ionic-native/media";
 import {RestProvider} from "../../providers/rest/rest";
 import {BaseUI} from "../../common/baseui";
+import {FaultPage} from "../fault/fault";
 // import {LocalNotifications} from "@ionic-native/local-notifications";
 
 @Component({
@@ -14,9 +15,9 @@ export class HomePage extends BaseUI {
   topAlarms: any;
   unhandle: number;
   file: MediaObject;
-  ws:any;
+  ws: any;
   /** webSocket连接标识**/
-  wsConnect:any;
+  wsConnect: any;
 
   constructor(public navCtrl: NavController,
               private rest: RestProvider,
@@ -30,8 +31,8 @@ export class HomePage extends BaseUI {
   /**
    * 页面将要进入时执行
    */
-  ionViewWillEnter(){
-    this.conWebSocket();
+  ionViewWillEnter() {
+
   }
 
 
@@ -55,49 +56,63 @@ export class HomePage extends BaseUI {
    */
   ionViewDidLoad() {
     this.file = this.media.create("/android_asset/www/assets/file/music.mp3");
+    this.conWebSocket();
   }
 
 
   /**
    * 连接webSocket
    */
-  conWebSocket(){
-    if('WebSocket' in window){
-      this.ws = new WebSocket('ws://172.16.0.44:7000'  + '/ams/webSocket');
+  conWebSocket() {
+    if ('WebSocket' in window) {
+      // if(this.ws.readyState != WebSocket.CONNECTING){
+      this.ws = new WebSocket('ws://172.16.0.44:7000' + '/ams/webSocket');
       let that = this;
       this.ws.onopen = function (event) {
         that.wsConnect = true;
         console.log('webSocket open');
       };
+      // }
     }
   }
 
   /**
    * 检查webSocket状态，如果未连接就重新连接，如果已连接就监听消息
    */
-  checkWebSocket(){
-    if('WebSocket' in window){
-      if(this.wsConnect == false){
-        this.ws = new WebSocket('ws://172.16.0.44:7000'  + '/ams/webSocket');
-      }
-      let that = this;
-      this.ws.onopen = function () {
-        that.wsConnect = true;
-        console.log('webSocket open');
-      };
-      this.ws.onmessage = function (event) {
-        // that.localNotifications.schedule({
-        //   id:1,
-        //   text:event.data
-        // });
-        console.log(event.data);
-        that.playMusic(that.file);
-      }
-      this.ws.onClose = function () {
-        console.log("connection closed");
-        that.wsConnect = false;
-      }
-    }else{
+  checkWebSocket() {
+    if ('WebSocket' in window) {
+      // if(this.wsConnect == false){
+      //   this.ws = new WebSocket('ws://172.16.0.44:7000'  + '/ams/webSocket');
+      // }
+      setInterval(() => {
+        console.log("interval");
+        let that = this;
+        this.ws.onopen = function () {
+          that.wsConnect = true;
+          console.log('webSocket open');
+        };
+        this.ws.onmessage = function (event) {
+          // that.localNotifications.schedule({
+          //   id:1,
+          //   text:event.data
+          // });
+          console.log(event.data);
+          that.playMusic(that.file);
+        }
+        this.ws.onClose = function () {
+          console.log("connection closed");
+          that.wsConnect = false;
+          // this.ws = new WebSocket('ws://172.16.0.44:7000' + '/ams/webSocket');
+          this.ws = new WebSocket('ws://192.168.137.1:7000' + '/ams/webSocket');
+        }
+        if (this.ws.readyState == WebSocket.CLOSED) {
+          // this.ws = new WebSocket('ws://172.16.0.44:7000' + '/ams/webSocket');
+          this.ws = new WebSocket('ws://192.168.137.1:7000' + '/ams/webSocket');
+        }
+      }, 5000);
+
+
+    } else {
       alert("not support webSocket");
     }
 
@@ -120,7 +135,7 @@ export class HomePage extends BaseUI {
       res => {
         this.getAlarm();
       },
-      err =>{
+      err => {
         console.log(err.message);
       }
     );
@@ -158,7 +173,7 @@ export class HomePage extends BaseUI {
    * 下拉刷新
    * @param refresher
    */
-  doRefresh(refresher){
+  doRefresh(refresher) {
     console.log('Begin async operation', refresher);
 
     setTimeout(() => {
@@ -169,15 +184,22 @@ export class HomePage extends BaseUI {
   }
 
   /**
+   * 跳转页面
+   */
+  toFaultPage() {
+    this.navCtrl.push(FaultPage);
+  }
+
+  /**
    * 获取sys_event数据
    */
-  private getAlarm(){
+  private getAlarm() {
     this.rest.getAlaram()
     .subscribe(f => {
       this.topAlarms = f["responseParams"]["topAlarms"];
       this.unhandle = f["responseParams"]["unhandle"];
       // this.check(this.topAlarms, this.file);
-    },err=>{
+    }, err => {
       console.log("get alarm error:" + err.message);
     });
   }
@@ -186,7 +208,7 @@ export class HomePage extends BaseUI {
    * 循环播放音乐
    * @param file
    */
-  private playMusic(file:MediaObject){
+  private playMusic(file: MediaObject) {
     console.log("playMusic");
     file.play();
     //循环播放
@@ -205,7 +227,7 @@ export class HomePage extends BaseUI {
    * 停止播放音乐
    * @param file
    */
-  stopMusic(file:MediaObject){
+  stopMusic(file: MediaObject) {
     file.stop();
     file.onStatusUpdate.subscribe(status => {
       console.log("stop status:" + status);

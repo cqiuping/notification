@@ -1,12 +1,13 @@
 <ion-header>
   <ion-navbar>
+
     <ion-title>Top5 Alarm</ion-title>
     <!--<button ion-button (click)="dismiss()" end>-->
     <!--<span ion-text color="primary" showWhen="ios">未认领 <span class="badge" ng-bind="alarmDatas.unhandle"></span></span>-->
     <!--<ion-icon name="md-close" showWhen="android"></ion-icon>-->
     <!--</button>-->
     <ion-buttons color="primary" end>
-      <a class="btn btn-sm btn-default pull-right" type="button">
+      <a class="btn btn-sm btn-default pull-right" type="button" (click)="toFaultPage()">
         未认领 <span class="badge">{{unhandle}}</span>
       </a>
       <a class="btn btn-sm btn-default pull-right" type="button" (click)="stopMusic(file)">

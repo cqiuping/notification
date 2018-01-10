@@ -22,8 +22,8 @@ export class RestProvider {
   }
 
   // private baseUrl = "http://172.16.22.176:7083/api/ams/mobile";
-  // private baseUrl = "http://192.168.137.1:7083/api/ams/mobile";
-  private baseUrl = "http://172.16.0.44:7000/api/ams/mobile";
+  private baseUrl = "http://192.168.137.1:7000/api/ams/mobile";
+  // private baseUrl = "http://172.16.0.44:7000/api/ams/mobile";
 
   //feed
   private apiUrlFeeds = 'https://imoocqa.gugujiankong.com/api/feeds/get';
