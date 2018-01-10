@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {AlertController, NavController, ToastController} from 'ionic-angular';
+import {AlertController, ModalController, NavController, ToastController} from 'ionic-angular';
 import {BackgroundMode} from "@ionic-native/background-mode";
 import {MediaObject, Media} from "@ionic-native/media";
 import {RestProvider} from "../../providers/rest/rest";
@@ -22,6 +22,7 @@ export class HomePage extends BaseUI {
   constructor(public navCtrl: NavController,
               private rest: RestProvider,
               private media: Media,
+              private modalCtrl: ModalController,
               private alertCtrl: AlertController,
               // private localNotifications:LocalNotifications,
               private backgroundMode: BackgroundMode) {
@@ -186,8 +187,8 @@ export class HomePage extends BaseUI {
   /**
    * 跳转页面
    */
-  toFaultPage() {
-    this.navCtrl.push(FaultPage);
+  showFaultModal() {
+    this.modalCtrl.create(FaultPage).present();
   }
 
   /**

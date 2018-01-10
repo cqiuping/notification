@@ -6,17 +6,43 @@
 -->
 <ion-header>
 
-  <ion-navbar>
-
+  <ion-navbar #mycontent>
     <ion-title>工单</ion-title>
+      <button ion-button menuToggle color="primary" end>
+      <ion-icon name="menu"></ion-icon>
+      </button>
+    <ion-buttons>
+      <button ion-button (click)="dismiss()">
+      <span ion-text color="primary" showWhen="ios">取消</span>
+      <ion-icon name="md-close" showWhen="android"></ion-icon>
+      </button>
+    </ion-buttons>
   </ion-navbar>
 
 </ion-header>
 
 
+<ion-content>
+
+</ion-content>
+
+<ion-menu [content]="mycontent" side="right">
   <ion-content>
-    <button ion-button menuToggle>
-      <ion-icon name="menu"></ion-icon>
-    </button>
+    <div padding="2px"></div>
+    <div class="row" padding="3px">
+      <div class="col">.col</div>
+      <div class="col">.col</div>
+      <div class="col">.col</div>
+      <div class="col">.col</div>
+    </div>
   </ion-content>
+
+  <ion-footer>
+    <ion-toolbar>
+      <button ion-button menuClose>Close Menu</button>
+    </ion-toolbar>
+  </ion-footer>
+</ion-menu>
+
+<!--<ion-nav [root]="rootPage" #mycontent swipeBackEnabled="false"></ion-nav>-->
 

@@ -27,9 +27,6 @@ import {BaseUI} from "../common/baseui";
 import {NativeAudio} from "@ionic-native/native-audio";
 import { RespInterceptorProvider } from '../providers/resp-interceptor/resp-interceptor';
 import {FaultPage} from "../pages/fault/fault";
-import {MenuPage} from "../pages/menu/menu";
-declare var enc;
-// import { LocalNotifications } from "@ionic-native/local-notifications";
 
 @NgModule({
   declarations: [
@@ -43,7 +40,6 @@ declare var enc;
     RegisterPage,
     UserPage,
     FaultPage,
-    MenuPage
 
   ],
   imports: [
@@ -64,7 +60,6 @@ declare var enc;
     RegisterPage,
     UserPage,
     FaultPage,
-    MenuPage
   ],
   providers: [
     StatusBar,
