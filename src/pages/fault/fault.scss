@@ -1,3 +1,79 @@
 page-fault {
+  input{
+    border: 1px solid #ccc;
+    padding: 7px 0px;
+    width: 120px;
+    border-radius: 3px;
+    padding-left:5px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s
+  }
+  input:focus{
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
+  }
 
+  .card {
+    margin: 0;
+    margin-bottom: 0px;
+    width: 100%;
+    box-shadow: none;
+  }
+  .card h2 {
+    padding-left: 10px;
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+  .card p {
+    color: #464646;
+    font-size: 1.2rem;
+  }
+  .card-content {
+    padding-top: 0px;
+    padding-left: 10px;
+    padding-bottom: 2px;
+  }
+  .card .note {
+    padding-left: 5px;
+    font-size: 1.1rem;
+  }
+  .col {
+    padding-top: 0;
+    padding-bottom: 0px;
+  }
+  .item {
+    padding-left: 10px;
+  }
+  .item p {
+    color: #999999;
+    padding-left:0px;
+  }
+  .item-md p {
+    margin: 0 0 0 0px;
+    overflow: inherit;
+    font-size: 1.4rem;
+    line-height: normal;
+    text-overflow: inherit;
+    color: #666;
+  }
+  .item ion-avatar {
+    margin: 0 !important;
+    margin-right: 5px !important;
+    margin-bottom: 3px !important;
+    min-height: 20px;
+    min-width: 20px;
+  }
+  .item ion-avatar img {
+    width: 20px;
+    height: 20px;
+  }
+  .more_button {
+    float: right;
+    padding-top: 0px;
+  }
 }

@@ -18,6 +18,7 @@ export class HomePage extends BaseUI {
   ws: any;
   /** webSocket连接标识**/
   wsConnect: any;
+  wsBaseUrl = 'ws://172.16.22.176:7083';
 
   constructor(public navCtrl: NavController,
               private rest: RestProvider,
@@ -67,7 +68,7 @@ export class HomePage extends BaseUI {
   conWebSocket() {
     if ('WebSocket' in window) {
       // if(this.ws.readyState != WebSocket.CONNECTING){
-      this.ws = new WebSocket('ws://172.16.0.44:7000' + '/ams/webSocket');
+      this.ws = new WebSocket(this.wsBaseUrl + '/ams/webSocket');
       let that = this;
       this.ws.onopen = function (event) {
         that.wsConnect = true;
@@ -82,33 +83,26 @@ export class HomePage extends BaseUI {
    */
   checkWebSocket() {
     if ('WebSocket' in window) {
-      // if(this.wsConnect == false){
-      //   this.ws = new WebSocket('ws://172.16.0.44:7000'  + '/ams/webSocket');
-      // }
+      let that = this;
       setInterval(() => {
         console.log("interval");
-        let that = this;
-        this.ws.onopen = function () {
+        that.ws.onopen = function () {
           that.wsConnect = true;
           console.log('webSocket open');
         };
-        this.ws.onmessage = function (event) {
-          // that.localNotifications.schedule({
-          //   id:1,
-          //   text:event.data
-          // });
+        that.ws.onmessage = function (event) {
           console.log(event.data);
           that.playMusic(that.file);
         }
-        this.ws.onClose = function () {
+        that.ws.onClose = function () {
           console.log("connection closed");
           that.wsConnect = false;
-          // this.ws = new WebSocket('ws://172.16.0.44:7000' + '/ams/webSocket');
-          this.ws = new WebSocket('ws://192.168.137.1:7000' + '/ams/webSocket');
+          that.ws = new WebSocket(that.wsBaseUrl + '/ams/webSocket');
+          // this.ws = new WebSocket('ws://192.168.137.1:7000' + '/ams/webSocket');
         }
         if (this.ws.readyState == WebSocket.CLOSED) {
-          // this.ws = new WebSocket('ws://172.16.0.44:7000' + '/ams/webSocket');
-          this.ws = new WebSocket('ws://192.168.137.1:7000' + '/ams/webSocket');
+          this.ws = new WebSocket(that.wsBaseUrl + '/ams/webSocket');
+          // this.ws = new WebSocket('ws://192.168.137.1:7000' + '/ams/webSocket');
         }
       }, 5000);
 
@@ -175,8 +169,6 @@ export class HomePage extends BaseUI {
    * @param refresher
    */
   doRefresh(refresher) {
-    console.log('Begin async operation', refresher);
-
     setTimeout(() => {
       console.log('Async operation has ended');
       this.getAlarm();
@@ -199,7 +191,6 @@ export class HomePage extends BaseUI {
     .subscribe(f => {
       this.topAlarms = f["responseParams"]["topAlarms"];
       this.unhandle = f["responseParams"]["unhandle"];
-      // this.check(this.topAlarms, this.file);
     }, err => {
       console.log("get alarm error:" + err.message);
     });

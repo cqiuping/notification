@@ -6,6 +6,7 @@ import {Storage} from "@ionic/storage";
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/operator/mergeMap';
+import {FaultParam} from "../../entity/faultParam";
 declare var encryptedString;
 
 // import * as RSA from '../../assets/lib/RSA.js'
@@ -21,8 +22,8 @@ export class RestProvider {
   constructor(public http: HttpClient, private storage: Storage) {
   }
 
-  // private baseUrl = "http://172.16.22.176:7083/api/ams/mobile";
-  private baseUrl = "http://192.168.137.1:7000/api/ams/mobile";
+  private baseUrl = "http://172.16.22.176:7083/api/ams/mobile";
+  // private baseUrl = "http://192.168.137.1:7083/api/ams/mobile";
   // private baseUrl = "http://172.16.0.44:7000/api/ams/mobile";
 
   //feed
@@ -35,11 +36,18 @@ export class RestProvider {
   //
 
 
-  //* 注意：因为课程是主要讲解 ionic 的技术点
-  //* 安全性方面你需要自己去做详细的设计和处理
-  //* 密码的传递应该在传递参数之前进行加密，并且服务器端也应该进行相应的处理
-  //* 具体的问题可以在慕课后台提问交流
+  /**
+   * 获取工单信息
+   * @param param
+   * @returns {Observable<Object>}
+   */
+  getFaultTable(param:FaultParam){
+    return this.http.post(this.baseUrl + "/fault", param);
+  }
 
+  getRecvUsername(param:FaultParam){
+    return this.http.post(this.baseUrl + "/recvUsername",param);
+  }
   /**
    * 根据用户的手机号码和密码进行登录
    *
@@ -55,7 +63,6 @@ export class RestProvider {
       if (val != null && val.appid != null && val.signkey != null) {
         console.log(key);
         let newAppid = encryptedString(key, val.appid);
-        console.log(newAppid);
         let newSingkey = encryptedString(key, val.signkey);
         username = encryptedString(key, username);
         password = encryptedString(key, password);
@@ -89,15 +96,28 @@ export class RestProvider {
     });
   }
 
+  /**
+   * 获取公钥
+   * @returns {Observable<Object>}
+   */
   initEnc() {
     return this.http.get(this.baseUrl + "/ping")
   }
 
 
+  /**
+   * 获取Top5 alarm
+   * @returns {Observable<Object>}
+   */
   getAlaram() {
     return this.http.get(this.baseUrl + "/alarm");
   }
 
+  /**
+   * 认领工单
+   * @param ids
+   * @returns {Observable<R>|OperatorFunction<T, R|I>}
+   */
   recv(ids: number[]) {
     console.log("recv faulter");
     return Observable.fromPromise(this.storage.get("userId"))
@@ -109,6 +129,8 @@ export class RestProvider {
       }
     })
   }
+
+
 
   /**
    * 注册请求

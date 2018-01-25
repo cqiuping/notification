@@ -7,14 +7,14 @@
 <ion-header>
 
   <ion-navbar #mycontent>
-    <ion-title>工单</ion-title>
-      <button ion-button menuToggle color="primary" end>
-      <ion-icon name="menu"></ion-icon>
-      </button>
+    <ion-title>工单<span *ngIf="selectedFaultState != null">---{{selectedFaultState}}</span></ion-title>
+    <button ion-button menuToggle color="primary" end>
+      筛选<ion-icon name="menu"></ion-icon>
+    </button>
     <ion-buttons>
       <button ion-button (click)="dismiss()">
-      <span ion-text color="primary" showWhen="ios">取消</span>
-      <ion-icon name="md-close" showWhen="android"></ion-icon>
+        <span ion-text color="primary" showWhen="ios">取消</span>
+        <ion-icon name="md-close" showWhen="android"></ion-icon>
       </button>
     </ion-buttons>
   </ion-navbar>
@@ -23,26 +23,100 @@
 
 
 <ion-content>
-
+  <ion-refresher (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-dropdown"
+      pullingText="下拉刷新"
+      refreshingSpinner="circles"
+      refreshingText="刷新中...">
+    </ion-refresher-content>
+  </ion-refresher>
+  <ion-card *ngFor="let fault of faultLists">
+    <ion-item>
+      <ion-avatar item-start [ngSwitch]="fault.eventLevel">
+      <img src="assets/imgs/state_danger.gif" *ngSwitchCase="1">
+      <img src="assets/imgs/state_warn.gif" *ngSwitchCase="2">
+      <img src="assets/imgs/state_info.gif" *ngSwitchCase="3">
+      </ion-avatar>
+        <p text-left>节点<span style="color:#ff0f07"> {{fault.nodeName}}</span>
+          <ion-icon class="more_button" name="more"></ion-icon>
+        </p>
+    </ion-item>
+    <h2>{{fault.name}}</h2>
+    <ion-card-content>
+      <p>所属主机:<span style="color:#ff0f07"> {{fault.hostName}}</span></p>
+    </ion-card-content>
+    <ion-row>
+      <ion-col col-8 padding-left="10px">
+        <ion-note>
+          发生时间:{{fault.createTime | date : 'yy-MM-dd HH:mm:ss'}}
+        </ion-note>
+      </ion-col>
+      <ion-col col-4></ion-col>
+    </ion-row>
+    <hr>
+  </ion-card>
 </ion-content>
 
 <ion-menu [content]="mycontent" side="right">
   <ion-content>
-    <div padding="2px"></div>
-    <div class="row" padding="3px">
-      <div class="col">.col</div>
-      <div class="col">.col</div>
-      <div class="col">.col</div>
-      <div class="col">.col</div>
+    <div padding-top="2px">故障类型</div>
+    <div class="row" padding-left="2px" padding-right="2px">
+      <div id="faultTypes_{{faultType.value}}" class="label label-default"
+           *ngFor="let faultType of faultTypes"
+           style="margin-right: 20px;margin-top:8px;float: left; background-color: #b8b8b8"
+           (click)="clickOne('faultType',faultType.value)">
+        <i style="font-size: 1.5em;padding-right: 1px;"
+        ></i>
+        <label style="font-size:10px;">{{faultType.label}}</label>
+      </div>
     </div>
+    <div padding-top="2px">告警等级</div>
+    <div class="row" padding-left="2px" padding-right="2px">
+      <div id="alertLevels_{{alertLevel.value}}" class="label label-default"
+           *ngFor="let alertLevel of alertLevels"
+           style="margin-right: 20px;margin-top:8px;float: left; background-color: #b8b8b8 "
+           (click)="clickOne('alertLevel',alertLevel.value)">
+        <i style="font-size: 1.5em;padding-right: 1px;"
+        ></i>
+        <label style="font-size:10px;">{{alertLevel.label}}</label>
+      </div>
+    </div>
+    <div padding-top="2px">认领状态</div>
+    <div class="row" padding-left="2px" padding-right="2px">
+      <div id="faultStates_{{faultState.value}}" class="label label-default"
+           *ngFor="let faultState of faultStates"
+           style="margin-right: 20px;margin-top:8px;float: left; background-color: #b8b8b8"
+           (click)="clickOne('faultState',faultState.value)">
+        <i style="font-size: 1.5em;padding-right: 1px;"
+        ></i>
+        <label style="font-size:10px;">{{faultState.label}}</label>
+      </div>
+    </div>
+    <div padding-top="2px" *ngIf="recvUsernames != null">认领用户</div>
+    <div class="row" padding-left="2px" padding-right="2px">
+      <div id="recvUsernames_{{recvUsername.value}}" class="label label-default"
+           *ngFor="let recvUsername of recvUsernames"
+           style="margin-right: 20px;margin-top:8px;float: left; background-color: #b8b8b8"
+           (click)="clickOne('recvUsername',recvUsername.value)">
+        <i style="font-size: 1.5em;padding-right: 1px;"
+        ></i>
+        <label style="font-size:10px;">{{recvUsername.value}}</label>
+      </div>
+    </div>
+    <div padding-top="2px">时间</div>
+    <input type="date" [max]="param.endTime" [(ngModel)]="param.startTime" placeholder="开始时间"/> ---
+    <input type="date" [min]="param.startTime" [(ngModel)]="param.endTime" placeholder="结束时间"/>
   </ion-content>
 
   <ion-footer>
     <ion-toolbar>
-      <button ion-button menuClose>Close Menu</button>
+      <div class="row">
+          <button ion-button color="secondary"(click)="reset()" class="col" style="height: 60px">重置</button>
+          <button ion-button menuClose (click)="getFaultTabele();getRecvUsername(param)" class="col" style="height:60px;">完成</button>
+      </div>
     </ion-toolbar>
   </ion-footer>
 </ion-menu>
 
-<!--<ion-nav [root]="rootPage" #mycontent swipeBackEnabled="false"></ion-nav>-->
 
