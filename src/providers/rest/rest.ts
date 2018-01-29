@@ -113,6 +113,18 @@ export class RestProvider {
     return this.http.get(this.baseUrl + "/alarm");
   }
 
+  statisticsHostPie(){
+    return this.http.get(this.baseUrl + "/statisticsHostPie");
+  }
+
+  statisticsAppPie(){
+    return this.http.get(this.baseUrl + "/statisticsAppPie");
+  }
+
+  statisticsNodePie(){
+    return this.http.get(this.baseUrl + "/statisticsNodePie");
+  }
+
   /**
    * 认领工单
    * @param ids
