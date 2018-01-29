@@ -48,12 +48,9 @@ export class HomePage extends BaseUI {
   ionViewDidEnter() {
     this.getAlarm();
     this.loadChat();
-    // this.getNodeStaticsNodePie();
     this.refresh();
-    // this.poll();
     this.backgroundMode.on('activate').subscribe(
       () => {
-        // this.poll();
         this.refresh();
       }
     )
@@ -167,10 +164,10 @@ export class HomePage extends BaseUI {
   /**
    * 每5秒刷新
    */
-  private refresh(){
-    setInterval(()=>{
+  private refresh() {
+    setInterval(() => {
       this.checkWebSocket();
-    },5000)
+    }, 5000)
   }
 
   /**
@@ -179,33 +176,6 @@ export class HomePage extends BaseUI {
   showFaultModal() {
     this.modalCtrl.create(FaultPage).present();
   }
-
-  // /**
-  //  * 请求获取监控环形图数据
-  //  */
-  // private getNodeStaticsNodePie() {
-  //   this.rest.getStaticsNodePie().subscribe(
-  //     res => {
-  //       let hostData = this.newPieArray(res["responseParams"]["hostData"]);
-  //       console.log(hostData);
-  //       if(this.hostPie != null){
-  //         this.hostPie.setOption(this.newPieDataOpt(hostData));
-  //         // console.log(JSON.stringify(this.hostPie.getOption()));
-  //       }
-  //       let appData = this.newPieArray(res["responseParams"]["appData"]);
-  //       if(this.appPie != null){
-  //         this.appPie.setOption(this.newPieDataOpt(appData));
-  //       }
-  //       let nodeData = this.newPieArray(res["responseParams"]["nodeData"]);
-  //       if(this.nodePie != null){
-  //         this.nodePie.setOption(this.newPieDataOpt(nodeData));
-  //       }
-  //     },
-  //     error => {
-  //       console.log(error.message);
-  //     }
-  //   )
-  // }
 
   /**
    * 获取sys_event数据
@@ -253,6 +223,94 @@ export class HomePage extends BaseUI {
         file.stop();
       }
     });
+  }
+
+
+  private clickHost() {
+    this.rest.statisticsHostPie().subscribe(
+      res => {
+        const hostChart = echarts.init(this.chartContainer);
+        hostChart.setOption(this.newPieStatOpt("主机监控"));
+        let hostData = this.newPieArray(res["responseParams"]);
+        hostChart.setOption(this.newPieDataOpt(hostData));
+        this.chartContainer.removeAttribute("_echarts_instance_");
+      }
+    )
+  }
+
+  private clickApp() {
+    this.rest.statisticsAppPie().subscribe(
+      res => {
+        const appChart = echarts.init(this.chartContainer);
+        appChart.setOption(this.newPieStatOpt("应用监控"));
+        let appData = this.newPieArray(res["responseParams"]);
+        appChart.setOption(this.newPieDataOpt(appData));
+        this.chartContainer.removeAttribute("_echarts_instance_");
+      }
+    )
+  }
+
+  private clickNode() {
+    this.rest.statisticsNodePie().subscribe(
+      res => {
+        const nodeChart = echarts.init(this.chartContainer);
+        nodeChart.setOption(this.newPieStatOpt("节点监控"));
+        let nodeData = this.newPieArray(res["responseParams"]);
+        nodeChart.setOption(this.newPieDataOpt(nodeData));
+        this.chartContainer.removeAttribute("_echarts_instance_");
+      }
+    )
+  }
+
+  segmentChanged(e) {
+    if (e.value == "host") {
+      this.clickHost();
+    } else if (e.value == "app") {
+      this.clickApp();
+    } else if (e.value == "node") {
+      this.clickNode();
+    } else if (e.value == "nodeAlarm") {
+      // this.clickChart4();
+    }
+  }
+
+  /**
+   * 图形chat初始化
+   */
+  private loadChat() {
+    this.chartContainer = document.getElementById('chartContainer');
+    this.clickHost();
+  }
+
+
+  /**
+   *环形图数据赋值
+   */
+  private newPieDataOpt(vals) {
+    return {
+      series: [
+        {
+          data: [
+            {value: vals[0], name: '正常'},
+            {value: vals[1], name: '正在恢复'},
+            {value: vals[2], name: '阈值告警'},
+            {value: vals[3], name: '宕机'}
+          ]
+        }
+      ]
+    };
+  }
+
+  /**
+   * 环形图data构造
+   */
+  private newPieArray(obj) {
+    var result = [];
+    result[0] = 'inline' in obj ? obj.inline : 0;
+    result[1] = 'resuming' in obj ? obj.resuming : 0;
+    result[2] = 'tholdalarm' in obj ? obj.tholdalarm : 0;
+    result[3] = 'downtime' in obj ? obj.downtime : 0;
+    return result;
   }
 
   /**
@@ -371,162 +429,4 @@ export class HomePage extends BaseUI {
     };
   }
 
-  /**
-   * 环形图data构造
-   */
-  private newPieArray(obj) {
-    var result = [];
-    result[0] = 'inline' in obj ? obj.inline : 0;
-    result[1] = 'resuming' in obj ? obj.resuming : 0;
-    result[2] = 'tholdalarm' in obj ? obj.tholdalarm : 0;
-    result[3] = 'downtime' in obj ? obj.downtime : 0;
-    return result;
-  }
-
-  /**
-   *环形图数据赋值
-   */
-  private newPieDataOpt(vals) {
-    return {
-      series: [
-        {
-          data: [
-            {value: vals[0], name: '正常'},
-            {value: vals[1], name: '正在恢复'},
-            {value: vals[2], name: '阈值告警'},
-            {value: vals[3], name: '宕机'}
-          ]
-        }
-      ]
-    };
-  }
-
-  private clickHost(){
-    this.rest.statisticsHostPie().subscribe(
-      res=>{
-        const hostChart = echarts.init(this.chartContainer);
-        hostChart.setOption(this.newPieStatOpt("主机监控"));
-        let hostData = this.newPieArray(res["responseParams"]);
-        hostChart.setOption(this.newPieDataOpt(hostData));
-        this.chartContainer.removeAttribute("_echarts_instance_");
-      }
-    )
-  }
-
-  private clickApp(){
-    this.rest.statisticsAppPie().subscribe(
-      res=>{
-        const appChart = echarts.init(this.chartContainer);
-        appChart.setOption(this.newPieStatOpt("应用监控"));
-        let appData = this.newPieArray(res["responseParams"]);
-        appChart.setOption(this.newPieDataOpt(appData));
-        this.chartContainer.removeAttribute("_echarts_instance_");
-      }
-    )
-  }
-
-  private clickNode(){
-    this.rest.statisticsNodePie().subscribe(
-      res=>{
-        const nodeChart = echarts.init(this.chartContainer);
-        nodeChart.setOption(this.newPieStatOpt("节点监控"));
-        let nodeData = this.newPieArray(res["responseParams"]);
-        nodeChart.setOption(this.newPieDataOpt(nodeData));
-        this.chartContainer.removeAttribute("_echarts_instance_");
-      }
-    )
-  }
-
-  segmentChanged(e) {
-    if (e.value == "host") {
-      this.clickHost();
-    } else if (e.value == "app") {
-      this.clickApp();
-    } else if (e.value == "node") {
-      this.clickNode();
-    } else if (e.value == "nodeAlarm") {
-      // this.clickChart4();
-    }
-  }
-  /**
-   * 图形chat初始化
-   */
-  private loadChat(){
-    this.chartContainer = document.getElementById('chartContainer');
-    this.clickHost();
-  }
-  // private loadChat() {
-  //   if(this.host != null && this.hostPie == null){
-  //     console.log(this.host);
-  //     this.hostPie = echarts.init(this.host.nativeElement);
-  //     this.hostPie.setOption(this.newPieStatOpt("主机监控"));
-  //   }
-  //   if(this.app != null && this.appPie == null){
-  //     this.appPie = echarts.init(this.app.nativeElement);
-  //     this.appPie.setOption(this.newPieStatOpt("应用监控"));
-  //   }
-  //   if(this.node != null && this.nodePie == null){
-  //     this.nodePie = echarts.init(this.node.nativeElement);
-  //     this.nodePie.setOption(this.newPieStatOpt("节点监控"));
-  //   }
-  //   if(this.nodeAlarm != null && this.nodeAlarmLine == null){
-  //     this.nodeAlarmLine = echarts.init(this.nodeAlarm.nativeElement);
-  //     this.nodeAlarmLine.setOption(this.newLineStatOpt("告警趋势"));
-  //   }
-  // }
-
-
-  // refreshAlarmLine (timeRegion) {
-  //   repo.getByPath(conf,"?action=alarmTrend&timeRegion="+timeRegion).then(function(data){
-  //     if(data.status==0){
-  //       nodeAlarmLine.setOption($scope.newLineDataOpt(data.data));
-  //     }else{
-  //       //toastr.error(data.errorMsg);
-  //     }
-  //   });
-  //   $scope.timeRegion = timeRegion;
-  // }
-
-
-  private poll() {
-    setInterval(
-      () => {
-        this.rest.getAlaram()
-        .subscribe(f => {
-          let topAlarms = f["responseParams"]["topAlarms"];
-          // this.check(topAlarms, this.file);
-        })
-      }, 6000
-    )
-
-  }
-
-  private check(topAlarms, file: MediaObject) {
-    if (topAlarms && topAlarms.length > 0) {
-      var top1 = topAlarms[0];
-      console.log(top1.alertLevel);
-      if (top1.alertLevel == 1 || top1.alertLevel == 2) {
-        file.play();
-        //循环播放
-        file.onStatusUpdate.subscribe(status => {
-          console.log("play status:" + status);
-          if (status == 0 || status == 4) {
-            if (status == 4) {
-              file.seekTo(0);
-            }
-            file.play();
-          }
-        });
-      } else {
-        file.stop();
-        file.onStatusUpdate.subscribe(status => {
-          console.log("stop status:" + status);
-          if (status != 0 && status != 4) {
-            console.log("stop stop stop");
-            file.stop();
-          }
-        });
-      }
-    }
-  }
 }
