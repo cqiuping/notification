@@ -4,8 +4,7 @@ import {BackgroundMode} from "@ionic-native/background-mode";
 import {MediaObject, Media} from "@ionic-native/media";
 import {RestProvider} from "../../providers/rest/rest";
 import {BaseUI} from "../../common/baseui";
-import {FaultPage} from "../fault/fault";
-// import {LocalNotifications} from "@ionic-native/local-notifications";
+import {FaultOrderPage} from "../fault-order/fault-order";
 declare var echarts;
 
 @Component({
@@ -14,30 +13,22 @@ declare var echarts;
 })
 export class HomePage extends BaseUI {
 
-  @ViewChild('host') host: ElementRef;
-  @ViewChild('app') app: ElementRef;
-  @ViewChild('node') node: ElementRef;
-  @ViewChild('nodeAlarm') nodeAlarm: ElementRef;
   chartContainer;
-
-  hostPie: any;
-  appPie: any;
-  nodePie: any;
-  nodeAlarmLine: any;
+  isLine: boolean = true;
+  timeRegion: string;
 
   topAlarms: any;
   unhandle: number;
-  file: MediaObject;
+  file:MediaObject ;
   ws: any;
   /** webSocket连接标识**/
-  wsBaseUrl = 'ws://172.16.22.176:7083';
+  wsBaseUrl = 'ws://172.16.22.248:8080/mobile/websocket/ws';
 
   constructor(public navCtrl: NavController,
               private rest: RestProvider,
               private media: Media,
               private modalCtrl: ModalController,
               private alertCtrl: AlertController,
-              // private localNotifications:LocalNotifications,
               private backgroundMode: BackgroundMode) {
     super();
   }
@@ -50,9 +41,9 @@ export class HomePage extends BaseUI {
     this.loadChat();
     this.refresh();
     this.backgroundMode.on('activate').subscribe(
-      () => {
-        this.refresh();
-      }
+        () => {
+          this.refresh();
+        }
     )
 
   }
@@ -61,6 +52,7 @@ export class HomePage extends BaseUI {
    * 页面加载完毕执行，并且只执行一次
    */
   ionViewDidLoad() {
+    // const file: MediaObject = this.media.create("/android_asset/www/assets/file/music.mp3");
     this.file = this.media.create("/android_asset/www/assets/file/music.mp3");
     this.conWebSocket();
   }
@@ -71,7 +63,7 @@ export class HomePage extends BaseUI {
    */
   conWebSocket() {
     if ('WebSocket' in window) {
-      this.ws = new WebSocket(this.wsBaseUrl + '/ams/webSocket');
+      this.ws = new WebSocket(this.wsBaseUrl);
     }
   }
 
@@ -81,73 +73,24 @@ export class HomePage extends BaseUI {
   checkWebSocket() {
     if ('WebSocket' in window) {
       this.ws.onopen = function () {
-        console.log('webSocket open');
+        console.log('websocket open');
       };
+      var that = this;
       this.ws.onmessage = function (event) {
-        this.playMusic(this.file);
+        that.playMusic(that.file);
       }
       this.ws.onClose = function () {
         console.log("connection closed");
-        this.ws = new WebSocket(this.wsBaseUrl + '/ams/webSocket');
+        that.ws = new WebSocket(this.wsBaseUrl);
       }
       if (this.ws.readyState == WebSocket.CLOSED) {
-        this.ws = new WebSocket(this.wsBaseUrl + '/ams/webSocket');
+        that.ws = new WebSocket(this.wsBaseUrl);
       }
     } else {
-      alert("not support webSocket");
+      alert("not support websocket");
     }
   }
 
-
-  /**
-   * 认领操作
-   * @param id
-   */
-  recv(id) {
-    let ids = [];
-    if (id == null) {
-
-    } else {
-      ids.push(id);
-    }
-    this.rest.recv(ids)
-    .subscribe(
-      res => {
-        this.getAlarm();
-      },
-      err => {
-        console.log(err.message);
-      }
-    );
-
-  }
-
-  /**
-   * 弹出确认框
-   * @param id
-   */
-  presentConfirm(id) {
-    let alert = this.alertCtrl.create({
-      message: '确认要认领吗？',
-      buttons: [
-        {
-          text: '取消',
-          role: 'cancel',
-          handler: () => {
-            console.log('Cancel clicked');
-          }
-        },
-        {
-          text: '认领',
-          handler: () => {
-            this.recv(id);
-            console.log('recv');
-          }
-        }
-      ]
-    });
-    alert.present();
-  }
 
   /**
    * 下拉刷新
@@ -174,7 +117,8 @@ export class HomePage extends BaseUI {
    * 跳转页面
    */
   showFaultModal() {
-    this.modalCtrl.create(FaultPage).present();
+    // this.modalCtrl.create(FaultPage).present();
+    this.navCtrl.push(FaultOrderPage);
   }
 
   /**
@@ -183,8 +127,8 @@ export class HomePage extends BaseUI {
   private getAlarm() {
     this.rest.getAlaram()
     .subscribe(res => {
-      this.topAlarms = res["responseParams"]["topAlarms"];
-      this.unhandle = res["responseParams"]["unhandle"];
+      this.topAlarms = res["data"]["topAlarms"];
+      this.unhandle = res["data"]["unhandle"];
       console.log(this.topAlarms);
     }, err => {
       console.log("get alarm error:" + err.message);
@@ -228,49 +172,76 @@ export class HomePage extends BaseUI {
 
   private clickHost() {
     this.rest.statisticsHostPie().subscribe(
-      res => {
-        const hostChart = echarts.init(this.chartContainer);
-        hostChart.setOption(this.newPieStatOpt("主机监控"));
-        let hostData = this.newPieArray(res["responseParams"]);
-        hostChart.setOption(this.newPieDataOpt(hostData));
-        this.chartContainer.removeAttribute("_echarts_instance_");
-      }
+        res => {
+          const hostChart = echarts.init(this.chartContainer);
+          hostChart.setOption(this.newPieStatOpt("主机监控"));
+          let hostData = this.newPieArray(res["data"]);
+          hostChart.setOption(this.newPieDataOpt(hostData));
+          this.chartContainer.removeAttribute("_echarts_instance_");
+        }, error => {
+          console.log("clickHost error:" + error.messge);
+        }
     )
   }
 
   private clickApp() {
     this.rest.statisticsAppPie().subscribe(
-      res => {
-        const appChart = echarts.init(this.chartContainer);
-        appChart.setOption(this.newPieStatOpt("应用监控"));
-        let appData = this.newPieArray(res["responseParams"]);
-        appChart.setOption(this.newPieDataOpt(appData));
-        this.chartContainer.removeAttribute("_echarts_instance_");
-      }
+        res => {
+          const appChart = echarts.init(this.chartContainer);
+          appChart.setOption(this.newPieStatOpt("应用监控"));
+          let appData = this.newPieArray(res["data"]);
+          appChart.setOption(this.newPieDataOpt(appData));
+          this.chartContainer.removeAttribute("_echarts_instance_");
+        }, error => {
+          console.log("clickApp error" + error.message);
+        }
     )
   }
 
   private clickNode() {
     this.rest.statisticsNodePie().subscribe(
-      res => {
-        const nodeChart = echarts.init(this.chartContainer);
-        nodeChart.setOption(this.newPieStatOpt("节点监控"));
-        let nodeData = this.newPieArray(res["responseParams"]);
-        nodeChart.setOption(this.newPieDataOpt(nodeData));
-        this.chartContainer.removeAttribute("_echarts_instance_");
-      }
+        res => {
+          const nodeChart = echarts.init(this.chartContainer);
+          nodeChart.setOption(this.newPieStatOpt("节点监控"));
+          let nodeData = this.newPieArray(res["data"]);
+          nodeChart.setOption(this.newPieDataOpt(nodeData));
+          this.chartContainer.removeAttribute("_echarts_instance_");
+        },
+        error => {
+          console.log("clickNode error:" + error.message);
+        }
+    )
+  }
+
+  clickAlarmLine(timeRegion) {
+    this.timeRegion = timeRegion;
+    this.rest.statisticsAlarmLineTrend(timeRegion).subscribe(
+        res => {
+          console.log(res["data"]);
+          const alarmLineChart = echarts.init(this.chartContainer);
+          alarmLineChart.setOption(this.newLineStatOpt("告警趋势"));
+          alarmLineChart.setOption(this.newLineDataOpt(res["data"]));
+          this.chartContainer.removeAttribute("_echarts_instance_");
+
+        }, err => {
+          console.log("clickAlarmLine error:" + err.message);
+        }
     )
   }
 
   segmentChanged(e) {
     if (e.value == "host") {
+      this.isLine = true;
       this.clickHost();
     } else if (e.value == "app") {
+      this.isLine = true;
       this.clickApp();
     } else if (e.value == "node") {
+      this.isLine = true;
       this.clickNode();
     } else if (e.value == "nodeAlarm") {
-      // this.clickChart4();
+      this.isLine = false;
+      this.clickAlarmLine('D');
     }
   }
 
@@ -302,10 +273,25 @@ export class HomePage extends BaseUI {
   }
 
   /**
+   * 折线图数据赋值
+   */
+  private newLineDataOpt(data) {
+    return {
+      xAxis: {
+        data: data.time
+      },
+      series: [{
+        data: data.count
+      }]
+    }
+  }
+
+  /**
    * 环形图data构造
    */
   private newPieArray(obj) {
     var result = [];
+    console.log(obj);
     result[0] = 'inline' in obj ? obj.inline : 0;
     result[1] = 'resuming' in obj ? obj.resuming : 0;
     result[2] = 'tholdalarm' in obj ? obj.tholdalarm : 0;

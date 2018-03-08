@@ -8,6 +8,9 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/mergeMap'
 import {RestProvider} from "../rest/rest";
 import {Storage} from "@ionic/storage";
+import {App, ToastController} from "ionic-angular";
+import {LoginPage} from "../../pages/login/login";
+import {BaseUI} from "../../common/baseui";
 
 /*
  Generated class for the RespInterceptorProvider provider.
@@ -16,39 +19,41 @@ import {Storage} from "@ionic/storage";
  and Angular DI.
  */
 @Injectable()
-export class RespInterceptorProvider implements HttpInterceptor {
+export class RespInterceptorProvider extends BaseUI implements HttpInterceptor {
 
-  rest:any;
+  rest: any;
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     this.rest = this.inj.get(RestProvider);
-    return next.handle(req).catch(
-      err =>{
-        console.log( err);
-        if(err instanceof HttpErrorResponse){
-          if(err.status == 401){
-            return  this.refreshToken()
-            .flatMap(
-              res =>{
-                this.storage.remove('token');
-                this.storage.set('token',res["responseParams"]);
-                const authReq = req.clone({headers: req.headers.set('token','' + res["responseParams"])});
-                console.log("response url:" + req.url);
-                return next.handle(authReq);
-              }
-            );
-          }else{
-            throw err;
+    return next.handle(req).do(
+        res => {
+          if (res["body"] != null) {
+            //对于返回的参数的status不为0并且状态码为200的请求，抛出错误
+            if (res["body"]["status"] != 0) {
+              let error = {message: res["body"]["errorMsg"]};
+              throw error;
+            }
+          }
+        },
+        err => {
+          if (err instanceof HttpErrorResponse) {
+            if (err.status == 401) {
+              this.app.getRootNav().setRoot(LoginPage);
+              super.showToast(this.toastCtrl, "抱歉，由于权限限制，您需要重新登陆")
+              return;
+            } else {
+              throw err;
+            }
           }
         }
-
-      });
+    )
   }
 
-  constructor(private inj:Injector,private storage:Storage) {
+  constructor(private inj: Injector, private storage: Storage, public app: App, private toastCtrl: ToastController) {
+    super();
   }
 
-  refreshToken(){
+  refreshToken() {
     return new Observable(observer => {
       this.rest.getTokenFromServer()
       .subscribe((res) => {

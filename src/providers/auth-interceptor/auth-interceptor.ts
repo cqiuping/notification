@@ -19,12 +19,13 @@ export class AuthInterceptorProvider implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     console.log(req.url);
+    // req.withCredentials=true;
     if (req.url.indexOf("ping") != -1 || req.url.indexOf("login") != -1 || req.url.indexOf("token") != -1) {
       return next.handle(req);
     } else {
-      return this.getToken().flatMap(data => {
-        console.log("auth token: " + JSON.stringify(data));
-        const authReq = req.clone({headers: req.headers.set('token', data+'')});
+      return this.getToken().flatMap(() => {
+        // req.withCredentials=true;
+        const authReq = req.clone({withCredentials:true});
         return next.handle(authReq);
       })
     }

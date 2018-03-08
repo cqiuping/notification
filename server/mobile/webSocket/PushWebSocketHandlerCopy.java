@@ -2,7 +2,7 @@
  * Copyright (c) 2018年01月05日 by XuanWu Wireless Technology Co.Ltd 
  *             All rights reserved  
  */
-package com.xuanwu.ams.mobile.webSocket;
+package com.xuanwu.ams.mobile.websocket;
 
 import com.xuanwu.ams.common.entity.SysEvent.EventType;
 import com.xuanwu.ams.sdk.util.JsonUtil;
@@ -17,12 +17,15 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 /**
+ * 测试webSocket发送数据到手机
+ *
  * @author <a href="mailto:chengqiuping@wxchina.com ">qiuping.Cheng</a>
  * @version 1.0.0
  * @Description
  * @date 2018/1/5
  */
 public class PushWebSocketHandlerCopy extends TextWebSocketHandler {
+
     private static Logger logger = LoggerFactory.getLogger(TextWebSocketHandler.class);
 
     @Override
@@ -32,11 +35,14 @@ public class PushWebSocketHandlerCopy extends TextWebSocketHandler {
         logger.info("pushWebSocketHandlerCopy connected");
     }
 
+    /**
+     * 测试发送告警信息至手机
+     */
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message)
             throws Exception {
         MsgItem msgItem = new MsgItem(MsgType.MOBILE,
-                new MsgLevel(EventType.THOLD_ALARM,2), "阈值告警",
+                new MsgLevel(EventType.THOLD_ALARM, 2), "阈值告警",
                 5);
         PushWebSocketHandler.sendMessage(new TextMessage(JsonUtil.toJson(msgItem)));
     }

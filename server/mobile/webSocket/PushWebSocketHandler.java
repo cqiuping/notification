@@ -2,7 +2,7 @@
  * Copyright (c) 2018年01月04日 by XuanWu Wireless Technology Co.Ltd 
  *             All rights reserved  
  */
-package com.xuanwu.ams.mobile.webSocket;
+package com.xuanwu.ams.mobile.websocket;
 
 import com.xuanwu.ams.services.msg.SendResult;
 import java.io.IOException;
@@ -10,7 +10,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -31,7 +30,7 @@ public class PushWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
         webSocketSessionSet.add(session);
-        logger.info("connection established and the send result is:{}",session);
+        logger.info("connection established and the send result is:{}", session);
     }
 
     @Override
@@ -45,14 +44,14 @@ public class PushWebSocketHandler extends TextWebSocketHandler {
             throws Exception {
         super.afterConnectionClosed(session, status);
         webSocketSessionSet.remove(session);
-        logger.info("a connection closed:{}",session);
+        logger.info("a connection closed:{}", session);
     }
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception)
             throws Exception {
         super.handleTransportError(session, exception);
-        logger.error("webSocket transport error:{}", exception.getMessage());
+        logger.error("websocket transport error:{}", exception.getMessage());
     }
 
     /**
@@ -60,7 +59,7 @@ public class PushWebSocketHandler extends TextWebSocketHandler {
      */
     public static SendResult sendMessage(WebSocketMessage message) {
         int count = 0;
-        logger.info("webSocketSessionSet's size:{}",webSocketSessionSet.size());
+        logger.info("webSocketSessionSet's size:{}", webSocketSessionSet.size());
         for (WebSocketSession session : webSocketSessionSet) {
             try {
                 session.sendMessage(message);

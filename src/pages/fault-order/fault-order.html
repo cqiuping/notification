@@ -7,16 +7,14 @@
 <ion-header>
 
   <ion-navbar #mycontent>
-    <ion-title>工单<span *ngIf="selectedFaultState != null">---{{selectedFaultState}}</span></ion-title>
-    <button ion-button menuToggle color="primary" end>
-      筛选<ion-icon name="menu"></ion-icon>
-    </button>
-    <ion-buttons>
-      <button ion-button (click)="dismiss()">
-        <span ion-text color="primary" showWhen="ios">取消</span>
-        <ion-icon name="md-close" showWhen="android"></ion-icon>
+    <ion-buttons end>
+      <button  menuToggle ion-button icon-only color="secondary">
+        <!--<span style="color: #fff">筛选</span>-->
+        <ion-icon name="funnel"></ion-icon>
       </button>
     </ion-buttons>
+    <ion-title>工单<span *ngIf="selectedFaultState != null">---{{selectedFaultState}}</span>
+    </ion-title>
   </ion-navbar>
 
 </ion-header>
@@ -25,41 +23,33 @@
 <ion-content>
   <ion-refresher (ionRefresh)="doRefresh($event)">
     <ion-refresher-content
-      pullingIcon="arrow-dropdown"
-      pullingText="下拉刷新"
-      refreshingSpinner="circles"
-      refreshingText="刷新中...">
+            pullingIcon="arrow-dropdown"
+            pullingText="下拉刷新"
+            refreshingSpinner="circles"
+            refreshingText="刷新中...">
     </ion-refresher-content>
   </ion-refresher>
-  <ion-card *ngFor="let fault of faultLists">
-    <ion-item>
-      <ion-avatar item-start [ngSwitch]="fault.eventLevel">
+  <ion-item  *ngFor="let fault of faultLists" (click)="gotoDetail(fault.eventId)">
+    <ion-avatar item-start [ngSwitch]="fault.eventLevel">
       <img src="assets/imgs/state_danger.gif" *ngSwitchCase="1">
       <img src="assets/imgs/state_warn.gif" *ngSwitchCase="2">
       <img src="assets/imgs/state_info.gif" *ngSwitchCase="3">
-      </ion-avatar>
-        <p text-left>节点<span style="color:#ff0f07"> {{fault.nodeName}}</span>
-          <ion-icon class="more_button" name="more"></ion-icon>
-        </p>
-    </ion-item>
-    <h2>{{fault.name}}</h2>
-    <ion-card-content>
-      <p>所属主机:<span style="color:#ff0f07"> {{fault.hostName}}</span></p>
-    </ion-card-content>
-    <ion-row>
-      <ion-col col-8 padding-left="10px">
-        <ion-note>
-          发生时间:{{fault.createTime | date : 'yy-MM-dd HH:mm:ss'}}
-        </ion-note>
-      </ion-col>
-      <ion-col col-4></ion-col>
-    </ion-row>
-    <hr>
-  </ion-card>
+    </ion-avatar>
+    <!--<p text-left>-->
+    <p text-left style="font-size: 16px;color: #444;">{{fault.name}}</p>
+    <!--节点<span style="color:#ff0f07"> {{fault.nodeName}}</span>-->
+    <!--<ion-icon class="more_button" name="more"></ion-icon>-->
+    <!--</p>-->
+    <p text-left>节点:<span> {{fault.nodeName}}</span></p>
+    <p text-left>所属主机:<span> {{fault.hostName}}</span></p>
+    <p text-left><ion-note>
+      发生时间:{{fault.createTime | date : 'yy-MM-dd HH:mm:ss'}}
+    </ion-note></p>
+  </ion-item>
 </ion-content>
 
-<ion-menu [content]="mycontent" side="right">
-  <ion-content>
+<ion-menu [content]="mycontent" type="overlay" side="right" persistent="true">
+  <ion-content style="margin:5px;">
     <div padding-top="2px">故障类型</div>
     <div class="row" padding-left="2px" padding-right="2px">
       <div id="faultTypes_{{faultType.value}}" class="label label-default"
@@ -93,7 +83,7 @@
         <label style="font-size:10px;">{{faultState.label}}</label>
       </div>
     </div>
-    <div padding-top="2px" *ngIf="recvUsernames != null">认领用户</div>
+    <div padding-top="2px" *ngIf="recvUsernames != null && recvUsernames.length">认领用户</div>
     <div class="row" padding-left="2px" padding-right="2px">
       <div id="recvUsernames_{{recvUsername.value}}" class="label label-default"
            *ngFor="let recvUsername of recvUsernames"
@@ -105,17 +95,23 @@
       </div>
     </div>
     <div padding-top="2px">时间</div>
-    <input type="date" [max]="param.endTime" [(ngModel)]="param.startTime" placeholder="开始时间"/> ---
-    <input type="date" [min]="param.startTime" [(ngModel)]="param.endTime" placeholder="结束时间"/>
+    <div style="padding-bottom: 10px">
+      <input type="date"  [max]="param.endTime" [(ngModel)]="param.startTime" placeholder="开始时间"/>
+      --
+      <input type="date"  [min]="param.startTime" [(ngModel)]="param.endTime" placeholder="结束时间"/>
+    </div>
   </ion-content>
 
   <ion-footer>
-    <ion-toolbar>
-      <div class="row">
-          <button ion-button color="secondary"(click)="reset()" class="col" style="height: 60px">重置</button>
-          <button ion-button menuClose (click)="getFaultTabele();getRecvUsername(param)" class="col" style="height:60px;">完成</button>
-      </div>
-    </ion-toolbar>
+    <!--<ion-toolbar>-->
+    <div class="row" style="margin-left: 0px;margin-right: 0px;">
+      <button ion-button color="secondary" (click)="reset()" class="col" style="height: 60px">重置
+      </button>
+      <button ion-button menuClose (click)="getFaultTabele();getRecvUsername(param)" class="col"
+              style="height:60px;">完成
+      </button>
+    </div>
+    <!--</ion-toolbar>-->
   </ion-footer>
 </ion-menu>
 

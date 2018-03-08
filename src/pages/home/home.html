@@ -1,70 +1,90 @@
 <ion-header>
-  <ion-navbar>
+    <ion-navbar>
 
-    <ion-title>Top5 Alarm</ion-title>
-    <!--<button ion-button (click)="dismiss()" end>-->
-    <!--<span ion-text color="primary" showWhen="ios">未认领 <span class="badge" ng-bind="alarmDatas.unhandle"></span></span>-->
-    <!--<ion-icon name="md-close" showWhen="android"></ion-icon>-->
-    <!--</button>-->
-    <ion-buttons color="primary" end>
-      <a class="btn btn-sm btn-default pull-right" type="button" (click)="showFaultModal()">
-        未认领 <span class="badge">{{unhandle}}</span>
-      </a>
-      <!--<a class="btn btn-sm btn-default pull-right" type="button" (click)="stopMusic(file)">-->
-      <!--停止报警-->
-      <!--</a>-->
-    </ion-buttons>
-  </ion-navbar>
+        <ion-title>Top5 Alarm</ion-title>
+        <ion-buttons color="primary" end>
+            <a class="btn btn-sm btn-default pull-right" type="button" (click)="showFaultModal()">
+                未认领 <span class="badge">{{unhandle}}</span>
+            </a>
+            <a class="btn btn-sm btn-default pull-right" type="button" (click)="stopMusic(file)">
+            停止报警
+            </a>
+        </ion-buttons>
+    </ion-navbar>
 </ion-header>
 
 <ion-content>
-  <ion-refresher (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content
-      pullingIcon="arrow-dropdown"
-      pullingText="下拉刷新"
-      refreshingSpinner="circles"
-      refreshingText="刷新中...">
-    </ion-refresher-content>
-  </ion-refresher>
-  <!--<ion-list>-->
-  <ion-card *ngFor="let alarm of topAlarms">
-    <ion-card-header>
-      <p>
-        <span class="label label-danger" *ngIf="alarm.alertLevel==1">严重</span>
-        <span class="label label-warning" *ngIf="alarm.alertLevel==2">警告</span>
-        <span class="label label-info" *ngIf="alarm.alertLevel==3">通知</span>
-        <span>{{alarm.title}}</span>
-      </p>
+    <ion-refresher (ionRefresh)="doRefresh($event)">
+        <ion-refresher-content
+                pullingIcon="arrow-dropdown"
+                pullingText="下拉刷新"
+                refreshingSpinner="circles"
+                refreshingText="刷新中...">
+        </ion-refresher-content>
+    </ion-refresher>
+    <!--<ion-list>-->
+    <ion-card *ngFor="let alarm of topAlarms">
+        <ion-card-header>
+            <p>
+                <span class="label label-danger" *ngIf="alarm.alertLevel==1">严重</span>
+                <span class="label label-warning" *ngIf="alarm.alertLevel==2">警告</span>
+                <span class="label label-info" *ngIf="alarm.alertLevel==3">通知</span>
+                <span>{{alarm.title}}</span>
+            </p>
+        </ion-card-header>
+        <ion-card-content>
+            <ion-grid>
+                <ion-row>
+                    <ion-col col-6>节点名称:{{alarm.nodeName}}</ion-col>
+                    <ion-col col-6 style="padding-right: 10px;">发生时间:{{alarm.createTime |
+                        date: 'yy-MM-dd HH:mm:ss'}}
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </ion-card-content>
+    </ion-card>
+    <div style="padding-left:10px;padding-right:10px;">
+        <ion-segment [(ngModel)]="monitor" (ionChange)="segmentChanged($event)">
+            <ion-segment-button value="host">
+                主机监控
+            </ion-segment-button>
+            <ion-segment-button value="app">
+                应用监控
+            </ion-segment-button>
+            <ion-segment-button value="node">
+                节点监控
+            </ion-segment-button>
+            <ion-segment-button value="nodeAlarm">
+                告警趋势
+            </ion-segment-button>
+        </ion-segment>
+        <div class=" panel-default">
+            <div  class=" btn-group-sm text-right" style="padding-top: 4px;"
+                 *ngIf="!isLine">
+                <!--<button type="button" class="btn btn-default"  ng-click="refreshAlarmLine('D');">天</button>-->
+                <!--<ion-buttons>-->
+                    <button type="button"
+                            [ngClass]="{'btn':true,'btn-primary':timeRegion=='D'}"
+                            (click)="clickAlarmLine('D')">天
+                    </button>
+                    <button type="button"
+                            [ngClass]="{'btn':true,'btn-primary':timeRegion=='W'}"
+                            (click)="clickAlarmLine('W')">周
 
-    </ion-card-header>
-    <ion-card-content>
-      <ion-grid>
-        <ion-row>
-          <ion-col col-6>节点名称:{{alarm.nodeName}}</ion-col>
-          <ion-col col-6 text-right style="padding-right:10px">发生时间:{{alarm.createTime |
-            date: 'yy-MM-dd HH:mm:ss'}}
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card-content>
-  </ion-card>
+                    </button>
+                    <button type="button"
+                            [ngClass]="{'btn':true,'btn-primary':timeRegion=='M'}"
+                            (click)="clickAlarmLine('M')">月
+                    </button>
+                <!--</ion-buttons>-->
+            </div>
 
-  <div>
-    <ion-segment [(ngModel)]="monitor"  (ionChange)="segmentChanged($event)">
-      <ion-segment-button value="host">
-        主机监控
-      </ion-segment-button>
-      <ion-segment-button value="app">
-        应用监控
-      </ion-segment-button>
-      <ion-segment-button value="node">
-        节点监控
-      </ion-segment-button>
-      <ion-segment-button value="nodeAlarm">
-        告警趋势
-      </ion-segment-button>
-    </ion-segment>
-    <div id="chartContainer" style="width: 100%; height: 210px;"></div>
-  </div>
+            <div>
+                <div id="chartContainer" style="width: 100%; height: 220px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 </ion-content>

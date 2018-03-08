@@ -25,7 +25,7 @@ export class MyApp {
   }
 
   private setRootPage(){
-    this.storage.get('token').then((val) => {
+    this.storage.get('userId').then((val) => {
         console.log("app module token:" + val);
         if (val != null) {
           this.rootPage = TabsPage;

@@ -18,15 +18,14 @@ import {UserPage} from "../pages/user/user";
 import {Media, MediaObject} from "@ionic-native/media";
 import {BackgroundMode} from "@ionic-native/background-mode";
 import {AppMinimize} from "@ionic-native/app-minimize";
-import {JPush} from "@jiguang-ionic/jpush";
 import {IonicStorageModule, Storage} from "@ionic/storage";
 import {HTTP_INTERCEPTORS, HttpClientModule, HttpErrorResponse} from "@angular/common/http"
 import {AuthInterceptorProvider} from '../providers/auth-interceptor/auth-interceptor';
 import {Observable} from "rxjs/Observable";
 import {BaseUI} from "../common/baseui";
-import {NativeAudio} from "@ionic-native/native-audio";
-import { RespInterceptorProvider } from '../providers/resp-interceptor/resp-interceptor';
-import {FaultPage} from "../pages/fault/fault";
+import {RespInterceptorProvider} from '../providers/resp-interceptor/resp-interceptor';
+import {FaultDetailPage} from "../pages/fault-detail/fault-detail";
+import {FaultOrderPage} from "../pages/fault-order/fault-order";
 
 @NgModule({
   declarations: [
@@ -39,8 +38,8 @@ import {FaultPage} from "../pages/fault/fault";
     LoginPage,
     RegisterPage,
     UserPage,
-    FaultPage,
-
+    FaultOrderPage,
+    FaultDetailPage
   ],
   imports: [
     BrowserModule,
@@ -59,7 +58,8 @@ import {FaultPage} from "../pages/fault/fault";
     LoginPage,
     RegisterPage,
     UserPage,
-    FaultPage,
+    FaultOrderPage,
+    FaultDetailPage
   ],
   providers: [
     StatusBar,
@@ -68,10 +68,8 @@ import {FaultPage} from "../pages/fault/fault";
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     RestProvider,
     Media,
-    NativeAudio,
     BackgroundMode,
     AppMinimize,
-    JPush,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptorProvider,
@@ -89,18 +87,18 @@ export class AppModule extends BaseUI {
 
   timer: any;
 
-  constructor(
-    private backgroundMode: BackgroundMode,
-    public platform: Platform,
-    private storage:Storage,
-    private media:Media,
-    private appMinimize: AppMinimize) {
+  constructor(private backgroundMode: BackgroundMode,
+              public platform: Platform,
+              private storage: Storage,
+              private media: Media,
+              private appMinimize: AppMinimize) {
     super();
     backgroundMode.enable();
     backgroundMode.setDefaults(({
       title: '通知应用',
       text: '在后台运行'
     }));
+
 
     this.platform.registerBackButtonAction(() => {
       this.appMinimize.minimize();
